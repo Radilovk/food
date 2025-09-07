@@ -2,47 +2,41 @@
 <html lang="bg">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Твоята грижа днес</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Твоята Хранителна Подкрепа</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <style>
         /* === Психологически съобразена цветова палитра === */
         :root {
-            --bg-color: #FDFBF6;
-            --card-bg: #FFFFFF;
-            --text-color: #4A4A4A;
-            --text-light: #7a7a7a;
-            --primary-color: #76ABAE;
-            --shadow-color: rgba(0, 0, 0, 0.04);
-            --border-color: #eeeeee;
-            
-            --group1-color: #92C7CF; /* Поддръжка (по-меко зелено-синьо) */
-            --group2-color: #AAD7D9; /* Имунитет (светло синьо) */
-            --group3-color: #B2A4FF; /* Регулация (меко лилаво) */
-            --group4-color: #FFD966; /* Мозък (топло жълто) */
-            --group5-color: #F7C8E0; /* Движение (нежно розово) */
-            --group6-color: #D8D9DA; /* Резерви (неутрално сиво) */
+            --color-bg: #FDFCF9; /* Много меко, топло бяло */
+            --color-card-bg: #FFFFFF;
+            --color-text-primary: #3D4A5C; /* Тъмно, но меко сиво-синьо */
+            --color-text-secondary: #7A8AA0;
+            --color-primary-action: #2E8B57; /* Морско зелено - цвят на растеж и спокойствие */
+            --color-primary-action-hover: #38a86a;
+            --color-shadow: rgba(61, 74, 92, 0.08);
+
+            /* Цветове за групите - пастелни и природни */
+            --color-group1: #4CAF50; /* Поддръжка - Зелено (Растеж) */
+            --color-group2: #2196F3; /* Имунитет - Синьо (Чистота) */
+            --color-group3: #9C27B0; /* Регулация - Лилаво (Баланс) */
+            --color-group4: #FFC107; /* Мозък - Жълто (Яснота) */
+            --color-group5: #FF9800; /* Движение - Оранжево (Енергия) */
+            --color-group6: #B0BEC5; /* Резерви - Неутрално сиво */
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        html {
-            font-size: 16px;
-        }
+        html { font-size: 16px; }
 
         body {
-            font-family: 'Nunito', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text-primary);
             padding: 1.5rem 1rem;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            -webkit-tap-highlight-color: transparent; /* Премахва синия фон при докосване на мобилни */
         }
 
         .container {
@@ -50,309 +44,382 @@
             margin: 0 auto;
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
+        header { text-align: center; margin-bottom: 2rem; }
+        header h1 { font-size: 1.75rem; margin-bottom: 0.5rem; }
+        header p { font-size: 1rem; color: var(--color-text-secondary); }
 
-        header h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        header p {
-            font-size: 1rem;
-            color: var(--text-light);
-        }
-
-        /* === AI Модел Селектор === */
-        .model-selector {
-            display: flex;
-            background-color: var(--border-color);
-            border-radius: 50px;
-            padding: 4px;
-            margin-bottom: 1.5rem;
-        }
-
-        .model-selector input[type="radio"] {
-            display: none;
-        }
-
-        .model-selector label {
-            flex: 1;
-            text-align: center;
-            padding: 0.7rem 0;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .model-selector input[type="radio"]:checked + label {
-            background-color: var(--primary-color);
-            color: white;
-            box-shadow: 0 2px 10px rgba(118, 171, 174, 0.3);
-        }
-        
-        /* === Поле за въвеждане === */
-        main {
-            background-color: var(--card-bg);
-            border-radius: 20px;
+        /* === Секция за въвеждане === */
+        .input-section {
+            background-color: var(--color-card-bg);
+            border-radius: 16px;
             padding: 1.5rem;
-            box-shadow: 0 8px 30px var(--shadow-color);
+            box-shadow: 0 8px 24px var(--color-shadow);
+            margin-bottom: 2rem;
         }
 
         #food-input {
             width: 100%;
             min-height: 100px;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
             padding: 1rem;
-            font-family: 'Nunito', sans-serif;
-            font-size: 1rem;
+            border: 1px solid #E0E7F1;
+            border-radius: 12px;
             resize: vertical;
-            background-color: var(--bg-color);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            background-color: var(--color-bg);
+        }
+        #food-input:focus { outline: 2px solid var(--color-primary-action); }
+
+        .ai-selector {
+            display: flex;
+            border: 1px solid #E0E7F1;
+            border-radius: 10px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        .ai-btn {
+            flex: 1;
+            padding: 0.75rem;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            transition: all 0.2s ease-in-out;
+        }
+        .ai-btn.active {
+            background-color: var(--color-primary-action);
+            color: white;
+            box-shadow: 0 2px 8px rgba(46, 139, 87, 0.3);
         }
 
         #analyze-btn {
             width: 100%;
-            background-color: var(--primary-color);
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background-color: var(--color-primary-action);
             color: white;
             border: none;
-            border-radius: 50px;
-            padding: 1rem;
-            font-size: 1.1rem;
-            font-weight: 700;
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        
-        #analyze-btn:disabled {
-            background-color: #b3d1d3;
-            cursor: not-allowed;
-        }
+        #analyze-btn:hover { background-color: var(--color-primary-action-hover); }
+        #analyze-btn:disabled { background-color: #a6d3b8; cursor: not-allowed; }
 
-        /* === Индикатор за зареждане === */
+        /* === Индикатори за състояние (зареждане, грешка) === */
+        .status-indicator { display: none; margin-top: 1rem; text-align: center; }
         .loader {
-            display: none;
-            width: 30px;
-            height: 30px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary-color);
+            width: 24px; height: 24px;
+            border: 3px solid rgba(46, 139, 87, 0.2);
+            border-top-color: white;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 2rem auto;
         }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .error-message {
+            background-color: #ffdde0; color: #b71c1c;
+            padding: 0.75rem; border-radius: 8px; font-size: 0.9rem;
         }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* === Контейнер за резултати === */
+        /* === Дневен списък === */
+        .log-section { margin-bottom: 2rem; display: none; }
+        .log-section h2 { font-size: 1.2rem; margin-bottom: 0.75rem; }
+        #food-log-list {
+            list-style: none;
+            padding: 0;
+            background: var(--color-card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 16px var(--color-shadow);
+        }
+        .log-item {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #f0f3f7;
+            color: var(--color-text-primary);
+            font-size: 0.95rem;
+        }
+        .log-item:last-child { border-bottom: none; }
+
+        /* === Резултати === */
         #results-container {
-            margin-top: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            opacity: 0;
-            transform: translateY(10px);
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-
-        #results-container.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* === Карти с резултати === */
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .card-info {
-            flex-grow: 1;
-        }
-        
-        .card-info h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            margin: 0;
-        }
-        
-        .card-info p {
-            font-size: 0.85rem;
-            color: var(--text-light);
-        }
-
-        /* === Кръгова диаграма === */
-        .progress-circle {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
             display: grid;
-            place-items: center;
-            background: conic-gradient(var(--color) calc(var(--value) * 1%), #f0f0f0 0);
-            transition: background 1s ease-out;
-            flex-shrink: 0;
+            gap: 1.25rem;
+            grid-template-columns: 1fr; /* Една колона за мобилни */
         }
+        .card {
+            background-color: var(--color-card-bg);
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: 0 8px 24px var(--color-shadow);
+        }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
+        .card-header h3 { font-size: 1rem; font-weight: 600; }
+        .info-btn { background-color: #f0f3f7; border: none; border-radius: 50%; width: 24px; height: 24px; font-weight: bold; cursor: pointer; color: var(--color-text-secondary); font-style: italic; }
+        .card-visual { display: flex; justify-content: center; align-items: center; margin-bottom: 1rem; position: relative; }
+        .progress-circle { width: 100px; height: 100px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--color) calc(var(--value) * 1%), #f0f3f7 0); transition: background 1s ease-out; }
+        .progress-circle::before { content: ""; position: absolute; width: 80px; height: 80px; background: var(--color-card-bg); border-radius: 50%; }
+        .progress-value { position: relative; font-size: 1.5rem; font-weight: 600; color: var(--color-text-primary); }
+        .card-special-text { font-size: 0.9rem; color: var(--color-text-secondary); min-height: 100px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 1rem; background-color: #f8f9fa; border-radius: 8px; }
+        .card-details { display: none; margin-top: 1rem; font-size: 0.85rem; color: #495057; background-color: #f8f9fa; padding: 1rem; border-radius: 8px; }
+        .card-details.visible { display: block; }
         
-        .progress-circle::before {
-            content: "";
-            position: absolute;
-            width: 58px;
-            height: 58px;
-            background: var(--card-bg);
-            border-radius: 50%;
+        /* === Бутон за ресет === */
+        .reset-container { text-align: center; margin-top: 2.5rem; }
+        #reset-btn {
+            background: none; border: 1px solid #d1d9e4;
+            color: var(--color-text-secondary);
+            padding: 0.6rem 1.2rem; border-radius: 8px;
+            cursor: pointer; font-size: 0.9rem;
+            transition: all 0.2s ease;
         }
+        #reset-btn:hover { background-color: #f0f3f7; border-color: #c1ccd9; }
 
-        .progress-value {
-            position: relative;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text-color);
-        }
-        
-        .card-special-text {
-            font-size: 0.9rem;
-            color: var(--text-light);
-            text-align: center;
-            width: 100%;
-            padding: 1rem 0;
-        }
     </style>
 </head>
 <body>
 
     <div class="container">
         <header>
-            <h1>Твоята грижа днес</h1>
-            <p>Виж как храната подкрепя тялото ти</p>
+            <h1>Как подкрепи тялото си днес?</h1>
+            <p>Въведи какво си хапнал(а) и виж какви ресурси осигуряваш за своите функции.</p>
         </header>
 
-        <div class="model-selector">
-            <input type="radio" id="gemini" name="model" value="gemini" checked>
-            <label for="gemini">Бърз анализ</label>
-            <input type="radio" id="gpt" name="model" value="gpt">
-            <label for="gpt">Детайлен анализ</label>
-        </div>
-
         <main>
-            <textarea id="food-input" placeholder="Как се погрижи за себе си днес? Например: овесена каша с банан и няколко ореха..."></textarea>
-            <button id="analyze-btn">Добави към деня</button>
-            <div class="loader" id="loader"></div>
-            <div id="results-container"></div>
+            <section class="input-section">
+                <textarea id="food-input" placeholder="Например: овесени ядки с банан и няколко ореха..."></textarea>
+                
+                <div class="ai-selector">
+                    <button class="ai-btn" data-model="gpt">GPT-3.5</button>
+                    <button class="ai-btn active" data-model="gemini">Gemini</button>
+                </div>
+
+                <button id="analyze-btn">
+                    <span id="btn-text">Добави грижа</span>
+                    <div id="loader" class="loader status-indicator"></div>
+                </button>
+                <div id="error-container" class="status-indicator"></div>
+            </section>
+
+            <section class="log-section" id="log-section">
+                <h2>Ти добави:</h2>
+                <ul id="food-log-list"></ul>
+            </section>
+
+            <section id="results-container">
+                <!-- Картите се генерират от JavaScript при зареждане -->
+            </section>
+
+            <div class="reset-container">
+                <button id="reset-btn">Започни нов ден</button>
+            </div>
         </main>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const analyzeBtn = document.getElementById('analyze-btn');
-            const foodInput = document.getElementById('food-input');
-            const loader = document.getElementById('loader');
-            const resultsContainer = document.getElementById('results-container');
-            
-            const cardData = [
-                { id: 1, title: 'Поддръжка', subtitle: 'Възстановяване и структури', color: 'var(--group1-color)' },
-                { id: 2, title: 'Имунитет', subtitle: 'Защита и пречистване', color: 'var(--group2-color)' },
-                { id: 3, title: 'Регулация', subtitle: 'Баланс и хормони', color: 'var(--group3-color)' },
-                { id: 4, title: 'Мозъчна дейност', subtitle: 'Фокус и спокойствие', color: 'var(--group4-color)' },
-                { id: 5, title: 'Двигателни процеси', subtitle: 'Енергия и тонус', color: 'var(--group5-color)' },
-                { id: 6, title: 'Резерви', subtitle: 'Дългосрочна грижа', color: 'var(--group6-color)', isSpecial: true }
-            ];
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- DOM Елементи ---
+        const foodInput = document.getElementById('food-input');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const btnText = document.getElementById('btn-text');
+        const loader = document.getElementById('loader');
+        const errorContainer = document.getElementById('error-container');
+        const resultsContainer = document.getElementById('results-container');
+        const aiSelector = document.querySelector('.ai-selector');
+        const logSection = document.getElementById('log-section');
+        const foodLogList = document.getElementById('food-log-list');
+        const resetBtn = document.getElementById('reset-btn');
 
-            analyzeBtn.addEventListener('click', analyzeFood);
+        // --- API Endpoint ---
+        const API_URL = 'https://macros.radilov-k.workers.dev/';
 
-            async function analyzeFood() {
-                const foodText = foodInput.value.trim();
-                const selectedModel = document.querySelector('input[name="model"]:checked').value;
+        // --- Състояние на приложението ---
+        let currentProgress = {};
+        let foodLog = [];
+        let selectedModel = 'gemini'; // Default model
 
-                if (foodText === '') {
-                    alert('Моля, опиши какво хапна.');
-                    return;
+        // --- Константи ---
+        const cardData = [
+            { id: 1, title: 'Поддръжка и Възстановяване', color: 'var(--color-group1)' },
+            { id: 2, title: 'Имунитет и Пречистване', color: 'var(--color-group2)' },
+            { id: 3, title: 'Хормони и Регулация', color: 'var(--color-group3)' },
+            { id: 4, title: 'Мозъчна Дейност', color: 'var(--color-group4)' },
+            { id: 5, title: 'Двигателни Процеси', color: 'var(--color-group5)' },
+            { id: 6, title: 'Запасяване и Резерви', color: 'var(--color-group6)', isSpecial: true }
+        ];
+        
+        // --- Инициализация ---
+        function init() {
+            renderCards();
+            loadStateFromStorage();
+            updateUI();
+            setupEventListeners();
+        }
+
+        function renderCards() {
+            resultsContainer.innerHTML = '';
+            cardData.forEach(data => {
+                const cardHTML = `
+                    <div class="card" id="card-${data.id}">
+                        <div class="card-header">
+                            <h3>${data.id}. ${data.title}</h3>
+                        </div>
+                        <div class="card-visual">
+                            ${data.isSpecial ? 
+                                `<div class="card-special-text">Всички ресурси се използват за текущите нужди на тялото.</div>` :
+                                `<div class="progress-circle" style="--color: ${data.color}; --value: 0;">
+                                    <span class="progress-value">0%</span>
+                                </div>`
+                            }
+                        </div>
+                    </div>
+                `;
+                resultsContainer.innerHTML += cardHTML;
+            });
+        }
+
+        // --- Управление на състоянието ---
+        function loadStateFromStorage() {
+            const savedProgress = localStorage.getItem('dailyProgress');
+            const savedLog = localStorage.getItem('dailyFoodLog');
+            const savedDate = localStorage.getItem('savedDate');
+            const today = new Date().toLocaleDateString();
+
+            if (savedDate === today) {
+                currentProgress = savedProgress ? JSON.parse(savedProgress) : {};
+                foodLog = savedLog ? JSON.parse(savedLog) : [];
+            } else {
+                // It's a new day, clear old data
+                resetState(false); // false means don't show confirmation
+            }
+        }
+
+        function saveStateToStorage() {
+            localStorage.setItem('dailyProgress', JSON.stringify(currentProgress));
+            localStorage.setItem('dailyFoodLog', JSON.stringify(foodLog));
+            localStorage.setItem('savedDate', new Date().toLocaleDateString());
+        }
+        
+        function resetState(confirmUser = true) {
+            if (confirmUser && !confirm("Сигурни ли сте, че искате да изтриете целия дневен напредък?")) {
+                return;
+            }
+            currentProgress = {};
+            foodLog = [];
+            saveStateToStorage();
+            updateUI();
+        }
+
+        // --- UI Функции ---
+        function updateUI() {
+            // Update progress cards
+            for (let i = 1; i <= 6; i++) {
+                const card = document.getElementById(`card-${i}`);
+                if (!card) continue;
+                
+                const percentage = currentProgress[`group${i}_percentage`] || 0;
+
+                if (i < 6) {
+                    const circle = card.querySelector('.progress-circle');
+                    const valueSpan = card.querySelector('.progress-value');
+                    circle.style.setProperty('--value', percentage);
+                    valueSpan.textContent = `${percentage}%`;
+                } else {
+                    const specialText = card.querySelector('.card-special-text');
+                    specialText.textContent = percentage > 0 
+                        ? `Малка част от ресурсите се насочва към резерви.`
+                        : "Всички ресурси се използват за текущите нужди на тялото.";
                 }
+            }
+            // Update food log
+            if (foodLog.length > 0) {
+                logSection.style.display = 'block';
+                foodLogList.innerHTML = foodLog.map(item => `<li class="log-item">${item}</li>`).join('');
+            } else {
+                logSection.style.display = 'none';
+            }
+        }
 
-                // Показване на лоудъра и деактивиране на бутона
+        function showLoading(isLoading) {
+            if (isLoading) {
+                btnText.style.display = 'none';
                 loader.style.display = 'block';
                 analyzeBtn.disabled = true;
-                resultsContainer.classList.remove('visible');
-
-                try {
-                    const response = await fetch('https://macros.radilov-k.workers.dev/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            text: foodText,
-                            model: selectedModel
-                        }),
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`Грешка от сървъра: ${response.statusText}`);
-                    }
-
-                    const data = await response.json();
-                    
-                    // Изчистване на старото въвеждане
-                    foodInput.value = '';
-
-                    // Обновяване на интерфейса
-                    updateUI(data);
-
-                } catch (error) {
-                    console.error('Възникна грешка:', error);
-                    alert('Нещо се обърка. Моля, опитайте отново по-късно.');
-                } finally {
-                    // Скриване на лоудъра и активиране на бутона
-                    loader.style.display = 'none';
-                    analyzeBtn.disabled = false;
-                }
+                errorContainer.style.display = 'none';
+            } else {
+                btnText.style.display = 'block';
+                loader.style.display = 'none';
+                analyzeBtn.disabled = false;
             }
+        }
 
-            function updateUI(data) {
-                resultsContainer.innerHTML = ''; // Изчистване на предишни резултати
+        function showError(message) {
+            errorContainer.innerHTML = `<div class="error-message">${message}</div>`;
+            errorContainer.style.display = 'block';
+        }
+
+        // --- Основна логика и Event Listeners ---
+        async function handleAnalysis() {
+            const text = foodInput.value.trim();
+            if (text === '') return;
+
+            showLoading(true);
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, model: selectedModel })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.error || 'Сървърът върна грешка.');
+                }
+
+                const data = await response.json();
                 
-                cardData.forEach(cardInfo => {
-                    const percentage = data[`group${cardInfo.id}_percentage`] || 0;
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    
-                    if (cardInfo.isSpecial) {
-                        card.innerHTML = `
-                            <div class="card-special-text">
-                                ${percentage > 0 ? 
-                                `Малка част от ресурсите се насочва към резерви.` : 
-                                `Всички ресурси са използвани за текущите нужди.`}
-                            </div>
-                        `;
-                    } else {
-                        card.innerHTML = `
-                            <div class="card-info">
-                                <h3>${cardInfo.title}</h3>
-                                <p>${cardInfo.subtitle}</p>
-                            </div>
-                            <div class="progress-circle" style="--color: ${cardInfo.color}; --value: ${percentage};">
-                                <div class="progress-value">${percentage}%</div>
-                            </div>
-                        `;
-                    }
-                    resultsContainer.appendChild(card);
+                // Add new percentages to current progress
+                Object.keys(data).forEach(key => {
+                    const currentVal = currentProgress[key] || 0;
+                    currentProgress[key] = Math.min(100, currentVal + data[key]);
                 });
                 
-                // Показване на контейнера с плавна анимация
-                setTimeout(() => resultsContainer.classList.add('visible'), 100);
+                // Update log
+                foodLog.push(text);
+                
+                saveStateToStorage();
+                updateUI();
+                foodInput.value = '';
+
+            } catch (error) {
+                console.error("Analysis Error:", error);
+                showError("Възникна трудност при анализа. Моля, опитайте с по-ясно описание на храната.");
+            } finally {
+                showLoading(false);
             }
-        });
+        }
+
+        function setupEventListeners() {
+            analyzeBtn.addEventListener('click', handleAnalysis);
+            resetBtn.addEventListener('click', () => resetState(true));
+
+            aiSelector.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    document.querySelectorAll('.ai-btn').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    selectedModel = e.target.dataset.model;
+                }
+            });
+        }
+        
+        // --- Старт на приложението ---
+        init();
+    });
     </script>
 </body>
-</html>  
+</html>
