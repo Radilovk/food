@@ -1,0 +1,237 @@
+// Worker configuration at the top for easy access
+const AI_CONFIG = {
+  gemini: {
+    model: 'gemini-1.5-flash-latest',
+    apiKeySecret: 'GEMINI_API_KEY', // ЗАДЪЛЖИТЕЛНО: Задайте тази стойност в настройките на Cloudflare Worker
+    url: (apiKey) => `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
+  },
+  openai: {
+    model: 'gpt-3.5-turbo',
+    apiKeySecret: 'OPENAI_API_KEY', // ЗАДЪЛЖИТЕЛНО: Задайте и тази стойност като резервен вариант
+    url: 'https://api.openai.com/v1/chat/completions',
+  }
+};
+
+addEventListener('fetch', event => {
+  event.respondWith(handleRequest(event.request));
+});
+
+async function handleRequest(request) {
+  if (request.method === 'OPTIONS') return handleOptions();
+  if (request.method !== 'POST') return new Response('Method Not Allowed', { status: 405 });
+
+  try {
+    const requestBody = await request.json();
+    let { foodText, userProfile, dailyState, currentProgress } = requestBody;
+
+    // --- ОСНОВНА ЛОГИКА ---
+
+    // 1. Изчисляваме TDEE (дневни калорийни нужди) за ЦЕЛЕВОТО тегло.
+    const targetTDEE = calculateTDEE(userProfile.targetWeight, userProfile.height, userProfile.age, userProfile.gender, userProfile.activityLevel, dailyState);
+
+    // 2. Генерираме дневните нужди. Г1-Г5 са проценти от ЦЕЛЕВИЯ TDEE.
+    const dailyNeeds = {
+        g1: targetTDEE * 0.25, // Поддръжка
+        g2: targetTDEE * 0.15, // Имунитет
+        g3: targetTDEE * 0.15, // Регулация
+        g4: targetTDEE * 0.20, // Мозък
+        g5: targetTDEE * 0.25, // Движение
+        g6: targetTDEE 
+    };
+
+    let finalProgress = { ...currentProgress };
+    let aiTip = "Приятен апетит!"; // Стойност по подразбиране
+
+    // 3. Обработваме храната, ако е въведена.
+    if (foodText && foodText.trim() !== "") {
+      const analysisResult = await analyzeFoodWithAI(foodText, userProfile, dailyState);
+      
+      if (!analysisResult || !analysisResult.components || analysisResult.components.length === 0) {
+        return new Response(JSON.stringify({ error: "Не успях да анализирам храната. Моля, опишете я по друг начин." }), { status: 400, headers: getCorsHeaders() });
+      }
+
+      finalProgress = processFoodIntake(finalProgress, analysisResult, dailyNeeds);
+      aiTip = analysisResult.aiTip || aiTip;
+    }
+
+    // 4. Изчисляваме препоръчителното тегло, което да се върне на фронтенда.
+    const recommendedWeight = calculateRecommendedWeight(userProfile.height);
+    
+    const responsePayload = {
+      newProgress: finalProgress,
+      dailyNeeds: dailyNeeds,
+      recommendedWeight: recommendedWeight,
+      aiTip: aiTip, // Добавяме новата стойност
+    };
+
+    return new Response(JSON.stringify(responsePayload), { headers: getCorsHeaders() });
+
+  } catch (error) {
+    console.error('Worker Error:', error.stack);
+    return new Response(JSON.stringify({ error: 'Възникна вътрешна грешка в сървъра.' }), { status: 500, headers: getCorsHeaders() });
+  }
+}
+
+// ===================================================================
+//  Helper & AI Functions
+// ===================================================================
+function handleOptions() { return new Response(null, { headers: getCorsHeaders() }); }
+function getCorsHeaders() {
+  return {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json',
+  };
+}
+
+/**
+ * ПОДОБРЕНА ФУНКЦИЯ: Изпраща контекстуално-адаптивен промпт към AI.
+ */
+async function analyzeFoodWithAI(foodText, userProfile, dailyState) {
+    // Превеждаме числовите стойности в разбираем текст за AI
+    const stressMap = { 1: "Нисък", 2: "Умерен", 3: "Висок" };
+    const sleepMap = { 1: "Слаб (<6ч)", 2: "Добър (6-8ч)", 3: "Отличен (>8ч)" };
+    const activityMap = { 0: "Без", 1: "Лека тренировка", 2: "Интензивна тренировка" };
+
+    const goal = userProfile.weight > userProfile.targetWeight ? 'Отслабване' : (userProfile.weight < userProfile.targetWeight ? 'Покачване на тегло' : 'Поддържане');
+
+    const prompt = `
+    You are an expert nutritional physiologist API. Your task is to analyze a food description based on the user's context and return ONLY a single JSON object.
+
+    USER CONTEXT:
+    - Goal: ${goal}
+    - Gender: ${userProfile.gender === 'female' ? 'Жена' : 'Мъж'}, Age: ${userProfile.age}
+    - Daily State: Stress is ${stressMap[dailyState.stress]}, Sleep was ${sleepMap[dailyState.sleep]}, Today's extra activity: ${activityMap[dailyState.extraActivity]}.
+
+    YOUR TASK:
+    Analyze the food description below and return a JSON object with three keys: "components", "physiologicalImpact", and "aiTip".
+
+    1.  "components": An array of food items with estimated macronutrients (protein_g, carbs_g, fats_g) and key micronutrients.
+    2.  "physiologicalImpact": An object that estimates how the NET caloric energy should be distributed across 5 core bodily functions. The values must be percentages that add up to 100.
+        - g1_maintenance_pct: Tissue repair, skin, bones. (Prioritize protein, healthy fats)
+        - g2_immunity_pct: Immune cells, detox. (Prioritize vitamins, antioxidants)
+        - g3_regulation_pct: Hormones, enzymes. (Prioritize healthy fats, specific minerals)
+        - g4_brain_pct: Cognitive function. (Prioritize Omega-3, B-vitamins)
+        - g5_movement_pct: Muscle energy, heart function. (Prioritize carbs, protein)
+    3. "aiTip": A short, useful, encouraging tip (1-2 sentences) in Bulgarian, based on the food and the user's context.
+
+    Food description: "${foodText}"
+    `;
+
+    try {
+        const geminiResult = await callGeminiAPI(prompt);
+        const cleanedJson = geminiResult.replace(/```json/g, '').replace(/```/g, '').trim();
+        return JSON.parse(cleanedJson);
+    } catch (geminiError) {
+        console.warn("Gemini API failed:", geminiError.message, ". Falling back to OpenAI.");
+        const openaiResult = await callOpenAIAPI(prompt);
+        // OpenAI might wrap the JSON in a parent object, so we handle that
+        const parsedOpenAI = JSON.parse(openaiResult.trim());
+        return parsedOpenAI.components ? parsedOpenAI : JSON.parse(Object.values(parsedOpenAI)[0]);
+    }
+}
+
+async function callGeminiAPI(prompt) {
+    const apiKey = self[AI_CONFIG.gemini.apiKeySecret];
+    if (!apiKey) throw new Error("Gemini API key is not set.");
+    const response = await fetch(AI_CONFIG.gemini.url(apiKey), {
+        method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { response_mime_type: "application/json", temperature: 0.2 } }),
+    });
+    if (!response.ok) throw new Error(`Gemini API request failed with status ${response.status}`);
+    const data = await response.json();
+    if (!data.candidates) throw new Error("Invalid response structure from Gemini API");
+    return data.candidates[0].content.parts[0].text;
+}
+
+async function callOpenAIAPI(prompt) {
+    const apiKey = self[AI_CONFIG.openai.apiKeySecret];
+    if (!apiKey) throw new Error("OpenAI API key is not set.");
+    const response = await fetch(AI_CONFIG.openai.url, {
+        method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: AI_CONFIG.openai.model, messages: [{ role: 'user', content: prompt }], response_format: { type: "json_object" }, temperature: 0.2 }),
+    });
+    if (!response.ok) throw new Error(`OpenAI API request failed with status ${response.status}`);
+    const data = await response.json();
+    if (!data.choices) throw new Error("Invalid response structure from OpenAI API");
+    return data.choices[0].message.content;
+}
+
+// ===================================================================
+//  === ОСНОВНА ЛОГИКА ЗА ИЗЧИСЛЕНИЯ ===
+// ===================================================================
+
+function calculateTDEE(weight, height, age, gender, activityLevel, dailyState) {
+    let bmr;
+    if (gender === 'female') bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+    else bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+    
+    let tdee = bmr * activityLevel;
+    
+    const { stress, sleep, extraActivity } = dailyState;
+    if (stress === 3) tdee *= 1.1; else if (stress === 1) tdee *= 0.95;
+    if (sleep === 1) tdee *= 1.05; else if (sleep === 3) tdee *= 0.95;
+    if (extraActivity === 1) tdee *= 1.15; else if (extraActivity === 2) tdee *= 1.30;
+    
+    return tdee;
+}
+
+function calculateRecommendedWeight(heightCm) {
+    const heightM = heightCm / 100;
+    const lowerBmi = 19.0;
+    const upperBmi = 24.0;
+
+    const lowerWeight = lowerBmi * (heightM * heightM);
+    const upperWeight = upperBmi * (heightM * heightM);
+
+    return `${lowerWeight.toFixed(1)} - ${upperWeight.toFixed(1)} кг`;
+}
+
+/**
+ * ПОДОБРЕНА ФУНКЦИЯ: Обработва храната с TEF и AI-базирано разпределение.
+ */
+function processFoodIntake(currentProgress, analysisResult, dailyNeeds) {
+  const newProgress = { ...currentProgress };
+
+  // 1. Сумираме макронутриентите от всички компоненти на храната
+  let totalProtein = 0, totalCarbs = 0, totalFats = 0;
+  (analysisResult.components || []).forEach(item => {
+    totalProtein += item.protein_g || 0;
+    totalCarbs += item.carbs_g || 0;
+    totalFats += item.fats_g || 0;
+  });
+
+  // 2. Изчисляваме брутния енергиен прием
+  const grossEnergyPool = (totalProtein * 4) + (totalCarbs * 4) + (totalFats * 9);
+
+  // 3. НОВО: Изчисляваме и изваждаме Термичния ефект на храната (TEF)
+  const thermicEffectCost = (totalProtein * 4 * 0.25) + // 25% за протеин
+                              (totalCarbs * 4 * 0.08) +  // 8% за въглехидрати
+                              (totalFats * 9 * 0.02);    // 2% за мазнини
+
+  // Това е нетната, реално усвоена енергия, която ще разпределяме
+  const netEnergyPool = grossEnergyPool - thermicEffectCost;
+  
+  // 4. НОВО: Разпределяме нетната енергия спрямо процентите, подадени от AI
+  const impact = analysisResult.physiologicalImpact || {};
+  newProgress.g1 += netEnergyPool * ((impact.g1_maintenance_pct || 0) / 100);
+  newProgress.g2 += netEnergyPool * ((impact.g2_immunity_pct || 0) / 100);
+  newProgress.g3 += netEnergyPool * ((impact.g3_regulation_pct || 0) / 100);
+  newProgress.g4 += netEnergyPool * ((impact.g4_brain_pct || 0) / 100);
+  newProgress.g5 += netEnergyPool * ((impact.g5_movement_pct || 0) / 100);
+  
+  // 5. Проверяваме за излишък в групи 1-5 и го прехвърляме в група 6
+  let surplus = 0;
+  for (let i = 1; i <= 5; i++) {
+    const group = `g${i}`;
+    if (newProgress[group] > dailyNeeds[group]) {
+      surplus += newProgress[group] - dailyNeeds[group];
+      newProgress[group] = dailyNeeds[group]; // Капираме на 100%
+    }
+  }
+
+  // 6. Добавяме общия излишък към група 6 (Резерв)
+  newProgress.g6 += surplus;
+
+  return newProgress;
+}
