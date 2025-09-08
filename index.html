@@ -57,47 +57,42 @@
             border-radius: 20px; /* По-заоблени ъгли */
             box-shadow: 0 10px 40px var(--color-shadow);
             text-align: center;
+            position: relative;
         }
 
         /* === НОВ ХЕДЪР === */
         .app-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
             margin-bottom: 0.5rem;
-            gap: 1rem;
-        }
-
-        .app-header .about-btn {
-            background-color: var(--color-icon-bg);
-            color: var(--color-primary);
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.5rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            flex-shrink: 0;
-            font-family: 'Montserrat', sans-serif;
-        }
-        
-        .app-header .about-btn:hover {
-            background-color: var(--color-primary);
-            color: white;
-            box-shadow: 0 2px 8px rgba(157, 193, 131, 0.4);
-            transform: scale(1.05);
+            text-align: center;
         }
 
         .app-header h1 {
             font-family: 'Montserrat', sans-serif;
             margin: 0;
             color: var(--color-primary);
-            flex-grow: 1;
-            text-align: center;
+        }
+
+        /* === Бутон За AI Foodmap === */
+        .about-btn {
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            background-color: var(--color-icon-bg);
+            color: var(--color-primary);
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .about-btn:hover {
+            background-color: var(--color-primary);
+            color: white;
+            box-shadow: 0 2px 8px rgba(157, 193, 131, 0.4);
+            transform: scale(1.05);
         }
 
         .subtitle {
@@ -689,8 +684,8 @@
 </head>
 <body>
     <div class="container">
+        <a href="https://radilovk.github.io/food/about.html" class="about-btn" title="За AI Foodmap">За AI Foodmap</a>
         <header class="app-header">
-            <a href="https://radilovk.github.io/food/about.html" class="about-btn" title="За AI - Foodmap">?</a>
             <h1>Моята Храна, Моите Функции</h1>
         </header>
         <p class="subtitle">Опознай как храната, която избираш, подкрепя всяка жизненоважна функция на твоето тяло.</p>
