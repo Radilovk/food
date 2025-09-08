@@ -573,6 +573,11 @@
                         <label for="weight">Тегло (кг)</label>
                         <input type="number" id="weight" value="60" min="20" max="300">
                     </div>
+                    <!-- НОВО ПОЛЕ -->
+                    <div class="form-group">
+                        <label for="target-weight">Целево тегло (кг)</label>
+                        <input type="number" id="target-weight" value="55" min="30" max="300">
+                    </div>
                 </div>
                 <div class="form-group" style="margin-top: 1rem;">
                     <label for="activity-level">Основна дневна активност</label>
@@ -670,7 +675,13 @@
             { id: 3, title: 'Хормони и Регулация', color: 'var(--color-group3)', details: '<ul><li><b>Ендокринни жлези:</b> Йод, селен, тирозин за щитовидна; витамин C, B5 за надбъбречни; холестерол, цинк за полови жлези.</li><li><b>Стероидни хормони:</b> Витамин D, холестерол, омега-3 и омега-6 мастни киселини за синтез.</li><li><b>Невроендокринна връзка:</b> Взаимодействие между хормони и нервна система (кортизол, мелатонин, серотонин).</li><li><b>Циркадни ритми:</b> Мелатонин, витамин D, светлина и магнезий за регулиране на съня и бодърстването.</li><li><b>Глюкозни и липидни регулатори:</b> Хром, магнезий, ниацин за стабилизиране на хомеостазата.</li></ul>' },
             { id: 4, title: 'Мозъчна Дейност', color: 'var(--color-group4)', details: '<ul><li><b>Невромедиатори:</b> Триптофан, B6 за серотонин; тирозин, желязо, мед за допамин; холин за ацетилхолин.</li><li><b>Когнитивни процеси:</b> DHA, B12, фолат, витамин D за памет, концентрация, ясно мислене.</li><li><b>Емоционална стабилност:</b> Магнезий, цинк, омега-3 за буфериране срещу стрес и тревожност.</li><li><b>Психологическа устойчивост:</b> Аминокиселини и витамини B за адаптивността на нервната система.</li><li><b>Невропластичност:</b> BDNF (стимулиран от омега-3 и антиоксиданти) за създаване на нови връзки.</li></ul>' },
             { id: 5, title: 'Двигателни Процеси', color: 'var(--color-group5)', details: '<ul><li><b>Мускулна функция:</b> Аминокиселини, магнезий, калций, калий за правилно съкращение и отпускане.</li><li><b>Тонус и издръжливост:</b> Креатин, карнитин, фосфати, витамини B1 и B2 като кофактори.</li><li><b>Сърдечна дейност:</b> Калий, магнезий, таурин, омега-3 за ритъм и сила на съкращенията.</li><li><b>Ставна подвижност:</b> Колагенови аминокиселини, витамин C, манган.</li><li><b>Невро-мускулна координация:</b> Калций, витамин D, В-витамини, ацетилхолин.</li></ul>' },
-            { id: 6, title: 'Запасяване и Резерви', color: 'var(--color-group6)', isSpecial: true, details: '<p>Тази група показва дали тялото има ресурси, които да запаси за бъдеща употреба. При нормално хранене, особено в период на възстановяване, тази група често остава празна. Това е добър знак, че всички приети вещества се използват активно за поддържане на другите пет жизненоважни функции, без излишно натрупване.</p><ul><li><b>Чернодробен резерв (гликоген):</b> Попълва се при повече въглехидрати, служи за мозък и кръвна глюкоза.</li><li><b>Мускулен резерв (гликоген):</b> Попълва се при повече въглехидрати и активност; достъпен при движение.</li><li><b>Мастна тъкан (ендокринна функция):</b> При наличие на излишък; служи като жлеза, която отделя регулаторни хормони.</li><li><b>Микронутриентни депа:</b> Витамини и минерали, складирани в черен дроб, кости, щитовидна.</li><li><b>Белтъчен пул:</b> Временни аминокиселинни резерви в мускули и черен дроб.</li></ul>' }
+            // ПРОМЕНЕНА СТРУКТУРА НА КАРТА 6
+            { 
+                id: 6, 
+                title: 'Попълване на Резерви',
+                color: 'var(--color-group6)', 
+                details: `<p>Тази група показва прогреса към достигане на здравословни телесни резерви, които са ключови за хормоналния баланс и общото здраве. Тя се запълва бавно, докато тялото се възстановява, и отразява дългосрочния напредък, а не моментното хранене.</p>` 
+            }
         ];
 
         function init() {
@@ -689,12 +700,9 @@
                             <button class="info-btn">i</button>
                         </div>
                         <div class="card-visual">
-                            ${data.isSpecial ? 
-                                `<div class="card-special-text">Няма пренасочване към резерви.</div>` :
-                                `<div class="progress-circle" style="--color: ${data.color}; --value: 0;">
-                                    <span class="progress-value">0%</span>
-                                </div>`
-                            }
+                            <div class="progress-circle" style="--color: ${data.color}; --value: 0;">
+                                <span class="progress-value">0%</span>
+                            </div>
                         </div>
                         <div class="card-details">${data.details}</div>
                     </div>
@@ -722,6 +730,10 @@
             document.getElementById('height').value = data.height;
             document.getElementById('weight').value = data.weight;
             document.getElementById('activity-level').value = data.activityLevel;
+            // Попълваме и новото поле, ако е запазено
+            if (data.targetWeight) {
+                document.getElementById('target-weight').value = data.targetWeight;
+            }
         }
 
         function loadState() {
@@ -746,13 +758,10 @@
                 mainApp.classList.add('disabled');
                 personalizationModule.classList.remove('collapsed');
             }
-
             const savedProgress = localStorage.getItem('currentProgress');
             currentProgress = savedProgress ? JSON.parse(savedProgress) : { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, g6: 0 };
-            
             const savedFoodLog = localStorage.getItem('foodLog');
             foodLog = savedFoodLog ? JSON.parse(savedFoodLog) : [];
-
             renderFoodLog();
             updateUI();
         }
@@ -769,7 +778,9 @@
         }
         
         function resetProgress() {
-            currentProgress = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, g6: 0 };
+            // Група 6 вече не се ресетва с дневния прогрес.
+            const g6progress = currentProgress.g6; // Запазваме прогреса на г6
+            currentProgress = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, g6: g6progress };
             foodLog = [];
             saveState();
             renderFoodLog();
@@ -777,12 +788,14 @@
         }
 
         function calculateDailyNeeds() {
+            // Тази функция остава основно същата, защото дневните нужди не се променят,
+            // само начинът на изчисляване на г6 се мести изцяло в бекенда.
             if (!userData) return;
             let bmr;
             if (userData.gender === 'female') { bmr = (10 * userData.weight) + (6.25 * userData.height) - (5 * userData.age) - 161; }
             else { bmr = (10 * userData.weight) + (6.25 * userData.height) - (5 * userData.age) + 5; }
             const tdee = bmr * userData.activityLevel;
-            let baseNeeds = { g1: tdee * 0.25, g2: tdee * 0.15, g3: tdee * 0.15, g4: tdee * 0.20, g5: tdee * 0.25, g6: 0 };
+            let baseNeeds = { g1: tdee * 0.25, g2: tdee * 0.15, g3: tdee * 0.15, g4: tdee * 0.20, g5: tdee * 0.25, g6: 100 };
             const stress = parseInt(document.getElementById('stress-slider').value);
             const sleep = parseInt(document.getElementById('sleep-slider').value);
             const extraActivity = parseInt(document.querySelector('.activity-btn.active').dataset.value);
@@ -803,22 +816,13 @@
                 if (!card) continue;
                 const progress = currentProgress[`g${i}`] || 0;
                 const need = dailyNeeds[`g${i}`] || 1;
-                if (i < 6) {
-                    const percentage = Math.min(100, Math.round((progress / need) * 100));
-                    const circle = card.querySelector('.progress-circle');
-                    const valueSpan = card.querySelector('.progress-value');
-                    circle.style.setProperty('--value', percentage);
-                    valueSpan.textContent = `${percentage}%`;
-                } else {
-                    const specialText = card.querySelector('.card-special-text');
-                    if (progress > 0) {
-                        specialText.textContent = `Малка част от ресурсите се насочва към резерви. (≈ ${Math.round(progress)} ФЕ)`;
-                        specialText.style.color = 'var(--color-primary)';
-                    } else {
-                        specialText.textContent = "Няма пренасочване към резерви.";
-                        specialText.style.color = 'var(--color-light-text)';
-                    }
-                }
+                const percentage = Math.min(100, Math.round((progress / need) * 100));
+
+                const circle = card.querySelector('.progress-circle');
+                const valueSpan = card.querySelector('.progress-value');
+                
+                circle.style.setProperty('--value', percentage);
+                valueSpan.textContent = `${percentage}%`;
             }
         }
 
@@ -837,20 +841,20 @@
                 const age = parseInt(document.getElementById('age').value);
                 const height = parseInt(document.getElementById('height').value);
                 const weight = parseInt(document.getElementById('weight').value);
+                const targetWeight = parseInt(document.getElementById('target-weight').value); // Взимаме и целевото тегло
 
-                // --- START OF FIX ---
-                // Коригираната валидация. Проверява само числовите полета.
-                if (isNaN(age) || isNaN(height) || isNaN(weight) || age <= 0 || height <= 0 || weight <= 0) {
-                    alert("Моля, попълнете коректно полетата за възраст, ръст и тегло с валидни положителни числа.");
+                // Обновена валидация
+                if (isNaN(age) || isNaN(height) || isNaN(weight) || isNaN(targetWeight) || age <= 0 || height <= 0 || weight <= 0 || targetWeight <= 0) {
+                    alert("Моля, попълнете коректно всички полета в профила с валидни положителни числа.");
                     return;
                 }
-                // --- END OF FIX ---
-
+                
                 userData = {
                     gender: document.getElementById('gender').value,
                     age: age,
                     height: height,
                     weight: weight,
+                    targetWeight: targetWeight, // Добавяме го към обекта
                     activityLevel: parseFloat(document.getElementById('activity-level').value)
                 };
                 
@@ -860,6 +864,8 @@
                 
                 resetProgress();
                 calculateDailyNeeds();
+                // След запазване на профила, веднага изпращаме заявка към бекенда, за да се обнови прогреса на група 6
+                updateReserveProgress();
             });
 
             updateDailyStateBtn.addEventListener('click', () => {
@@ -869,14 +875,10 @@
             
             analyzeBtn.addEventListener('click', async () => {
                 const text = foodInput.value.trim();
-                if (text === '') {
-                    alert('Моля, въведете описание на храната.');
-                    return;
-                }
+                if (text === '') { return alert('Моля, въведете описание на храната.'); }
                 if (!userData) {
-                    alert('Моля, попълнете първо своя профил.');
                     personalizationModule.classList.remove('collapsed');
-                    return;
+                    return alert('Моля, попълнете първо своя профил.');
                 }
                 loader.style.display = 'block';
                 analyzeBtn.disabled = true;
@@ -917,7 +919,7 @@
             });
             
             resetBtn.addEventListener('click', () => {
-                if (confirm("Сигурни ли сте, че искате да изтриете целия дневен прогрес и да започнете отначало?")) {
+                if (confirm("Сигурни ли сте, че искате да изтриете целия дневен прогрес (без прогреса към целево тегло) и да започнете отначало?")) {
                     resetProgress();
                 }
             });
@@ -938,6 +940,36 @@
                     e.target.classList.add('active');
                 }
             });
+        }
+        
+        // Нова функция, която извиква бекенда само за да обнови прогреса на резервите
+        async function updateReserveProgress() {
+            // Изпращаме заявка с празен текст за храна, за да може бекендът
+            // да върне само обновения прогрес на база теглото
+            try {
+                const response = await fetch(backendUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        foodText: "", // Празен текст
+                        userProfile: userData,
+                        dailyState: {
+                            stress: parseInt(document.getElementById('stress-slider').value),
+                            sleep: parseInt(document.getElementById('sleep-slider').value),
+                            extraActivity: parseInt(document.querySelector('.activity-btn.active').dataset.value)
+                        },
+                        currentProgress: currentProgress
+                    })
+                });
+                if (!response.ok) return; // Тиха грешка, за да не пречи
+                const data = await response.json();
+                currentProgress = data.newProgress; 
+                dailyNeeds = data.dailyNeeds; 
+                saveState();
+                updateUI();
+            } catch (e) {
+                console.warn("Could not update reserve progress silently.", e);
+            }
         }
         
         init();
