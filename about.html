@@ -1,237 +1,338 @@
-// Worker configuration at the top for easy access
-const AI_CONFIG = {
-  gemini: {
-    model: 'gemini-1.5-flash-latest',
-    apiKeySecret: 'GEMINI_API_KEY', // ЗАДЪЛЖИТЕЛНО: Задайте тази стойност в настройките на Cloudflare Worker
-    url: (apiKey) => `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
-  },
-  openai: {
-    model: 'gpt-3.5-turbo',
-    apiKeySecret: 'OPENAI_API_KEY', // ЗАДЪЛЖИТЕЛНО: Задайте и тази стойност като резервен вариант
-    url: 'https://api.openai.com/v1/chat/completions',
-  }
-};
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Как работи нашият AI анализ на храна</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* === Глобални стилове и цветове (взети от приложението) === */
+        :root {
+            --color-bg: #f5f0e1;
+            --color-card-bg: #ffffff;
+            --color-text: #36454F;
+            --color-light-text: #8b968c;
+            --color-primary: #9dc183;
+            --color-secondary: #f0e68c;
+            --color-accent: #f4a261;
+            --color-shadow: rgba(0, 0, 0, 0.08);
+            --color-border: #e0e0e0;
+            --color-icon-bg: #e6f3e1;
+            --color-bad: #ef5350;
+        }
 
-addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request));
-});
+        /* === Базови стилове === */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-async function handleRequest(request) {
-  if (request.method === 'OPTIONS') return handleOptions();
-  if (request.method !== 'POST') return new Response('Method Not Allowed', { status: 405 });
+        html {
+            scroll-behavior: smooth;
+        }
 
-  try {
-    const requestBody = await request.json();
-    let { foodText, userProfile, dailyState, currentProgress } = requestBody;
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            padding: 1rem;
+        }
 
-    // --- ОСНОВНА ЛОГИКА ---
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--color-card-bg);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px var(--color-shadow);
+            padding: 2rem 1.5rem;
+        }
 
-    // 1. Изчисляваме TDEE (дневни калорийни нужди) за ЦЕЛЕВОТО тегло.
-    const targetTDEE = calculateTDEE(userProfile.targetWeight, userProfile.height, userProfile.age, userProfile.gender, userProfile.activityLevel, dailyState);
+        /* === Типография и заглавия === */
+        h1, h2 {
+            font-family: 'Comfortaa', cursive;
+            color: var(--color-primary);
+            font-weight: 600;
+            line-height: 1.3;
+            text-align: center;
+        }
 
-    // 2. Генерираме дневните нужди. Г1-Г5 са проценти от ЦЕЛЕВИЯ TDEE.
-    const dailyNeeds = {
-        g1: targetTDEE * 0.25, // Поддръжка
-        g2: targetTDEE * 0.15, // Имунитет
-        g3: targetTDEE * 0.15, // Регулация
-        g4: targetTDEE * 0.20, // Мозък
-        g5: targetTDEE * 0.25, // Движение
-        g6: targetTDEE 
-    };
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
 
-    let finalProgress = { ...currentProgress };
-    let aiTip = "Приятен апетит!"; // Стойност по подразбиране
+        h2 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
 
-    // 3. Обработваме храната, ако е въведена.
-    if (foodText && foodText.trim() !== "") {
-      const analysisResult = await analyzeFoodWithAI(foodText, userProfile, dailyState);
-      
-      if (!analysisResult || !analysisResult.components || analysisResult.components.length === 0) {
-        return new Response(JSON.stringify({ error: "Не успях да анализирам храната. Моля, опишете я по друг начин." }), { status: 400, headers: getCorsHeaders() });
-      }
+        p {
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
 
-      finalProgress = processFoodIntake(finalProgress, analysisResult, dailyNeeds);
-      aiTip = analysisResult.aiTip || aiTip;
-    }
+        .subtitle {
+            text-align: center;
+            color: var(--color-light-text);
+            font-size: 1rem;
+            margin-bottom: 2.5rem;
+        }
 
-    // 4. Изчисляваме препоръчителното тегло, което да се върне на фронтенда.
-    const recommendedWeight = calculateRecommendedWeight(userProfile.height);
-    
-    const responsePayload = {
-      newProgress: finalProgress,
-      dailyNeeds: dailyNeeds,
-      recommendedWeight: recommendedWeight,
-      aiTip: aiTip, // Добавяме новата стойност
-    };
+        /* === Секции и карти с предимства === */
+        .feature-section {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .feature-section:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
 
-    return new Response(JSON.stringify(responsePayload), { headers: getCorsHeaders() });
+        .feature-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
 
-  } catch (error) {
-    console.error('Worker Error:', error.stack);
-    return new Response(JSON.stringify({ error: 'Възникна вътрешна грешка в сървъра.' }), { status: 500, headers: getCorsHeaders() });
-  }
-}
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background-color: var(--color-icon-bg);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+            color: var(--color-primary);
+        }
+        .feature-icon svg {
+            width: 100%;
+            height: 100%;
+        }
 
-// ===================================================================
-//  Helper & AI Functions
-// ===================================================================
-function handleOptions() { return new Response(null, { headers: getCorsHeaders() }); }
-function getCorsHeaders() {
-  return {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Content-Type': 'application/json',
-  };
-}
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Една колона за мобилни */
+            gap: 1.5rem;
+        }
 
-/**
- * ПОДОБРЕНА ФУНКЦИЯ: Изпраща контекстуално-адаптивен промпт към AI.
- */
-async function analyzeFoodWithAI(foodText, userProfile, dailyState) {
-    // Превеждаме числовите стойности в разбираем текст за AI
-    const stressMap = { 1: "Нисък", 2: "Умерен", 3: "Висок" };
-    const sleepMap = { 1: "Слаб (<6ч)", 2: "Добър (6-8ч)", 3: "Отличен (>8ч)" };
-    const activityMap = { 0: "Без", 1: "Лека тренировка", 2: "Интензивна тренировка" };
+        .comparison-item {
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid var(--color-border);
+        }
 
-    const goal = userProfile.weight > userProfile.targetWeight ? 'Отслабване' : (userProfile.weight < userProfile.targetWeight ? 'Покачване на тегло' : 'Поддържане');
+        .comparison-item h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .comparison-item p {
+            font-size: 0.9rem;
+            color: var(--color-light-text);
+            margin: 0;
+        }
+        
+        .standard h3 {
+             color: var(--color-bad);
+        }
+        
+        .ours h3 {
+            color: var(--color-primary);
+        }
 
-    const prompt = `
-    You are an expert nutritional physiologist API. Your task is to analyze a food description based on the user's context and return ONLY a single JSON object.
+        /* === Секция "3 Лесни Стъпки" === */
+        .steps-container {
+            background-color: var(--color-bg);
+            padding: 2rem 1.5rem;
+            border-radius: 15px;
+            margin-top: 2rem;
+        }
+        .steps-container ol {
+            list-style: none;
+            counter-reset: steps-counter;
+        }
+        .steps-container li {
+            position: relative;
+            padding-left: 50px;
+            margin-bottom: 1.5rem;
+        }
+        .steps-container li:last-child {
+            margin-bottom: 0;
+        }
+        .steps-container li::before {
+            counter-increment: steps-counter;
+            content: counter(steps-counter);
+            position: absolute;
+            left: 0;
+            top: -5px;
+            font-family: 'Comfortaa', cursive;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            background-color: var(--color-primary);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .steps-container strong {
+            display: block;
+            font-weight: 600;
+        }
 
-    USER CONTEXT:
-    - Goal: ${goal}
-    - Gender: ${userProfile.gender === 'female' ? 'Жена' : 'Мъж'}, Age: ${userProfile.age}
-    - Daily State: Stress is ${stressMap[dailyState.stress]}, Sleep was ${sleepMap[dailyState.sleep]}, Today's extra activity: ${activityMap[dailyState.extraActivity]}.
+        /* === CTA Бутон === */
+        .cta-section {
+            text-align: center;
+            margin-top: 3rem;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: var(--color-accent);
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            text-decoration: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(244, 162, 97, 0.3);
+        }
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(244, 162, 97, 0.4);
+        }
+        
+        /* === Media Query за по-големи екрани === */
+        @media (min-width: 768px) {
+            h1 { font-size: 2.2rem; }
+            h2 { font-size: 1.5rem; }
+            .container { padding: 3rem; }
+            .comparison-grid { grid-template-columns: 1fr 1fr; }
+        }
 
-    YOUR TASK:
-    Analyze the food description below and return a JSON object with three keys: "components", "physiologicalImpact", and "aiTip".
+    </style>
+</head>
+<body>
 
-    1.  "components": An array of food items with estimated macronutrients (protein_g, carbs_g, fats_g) and key micronutrients.
-    2.  "physiologicalImpact": An object that estimates how the NET caloric energy should be distributed across 5 core bodily functions. The values must be percentages that add up to 100.
-        - g1_maintenance_pct: Tissue repair, skin, bones. (Prioritize protein, healthy fats)
-        - g2_immunity_pct: Immune cells, detox. (Prioritize vitamins, antioxidants)
-        - g3_regulation_pct: Hormones, enzymes. (Prioritize healthy fats, specific minerals)
-        - g4_brain_pct: Cognitive function. (Prioritize Omega-3, B-vitamins)
-        - g5_movement_pct: Muscle energy, heart function. (Prioritize carbs, protein)
-    3. "aiTip": A short, useful, encouraging tip (1-2 sentences) in Bulgarian, based on the food and the user's context.
+    <div class="container">
+        <header>
+            <h1>Вашата храна, разкодирана.</h1>
+            <p class="subtitle">Открийте защо нашият AI калкулатор е много повече от просто брояч на калории.</p>
+        </header>
 
-    Food description: "${foodText}"
-    `;
+        <main>
+            <!-- Секция 1: Фокус върху целта -->
+            <section class="feature-section">
+                <div class="feature-header">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" /></svg>
+                    </div>
+                    <h2>1. Фокус върху вашата цел, не върху момента</h2>
+                </div>
+                <div class="comparison-grid">
+                    <div class="comparison-item standard">
+                        <h3>❌ Стандартните калкулатори</h3>
+                        <p>Изчисляват нуждите ви, за да поддържате <strong>сегашното си тегло</strong>. Това не ви помага, ако искате промяна.</p>
+                    </div>
+                    <div class="comparison-item ours">
+                        <h3>✅ Нашият калкулатор</h3>
+                        <p>Работи като GPS. Задавате <strong>целевото си тегло</strong> и той калибрира нуждите ви, за да ви води към целта с всяко хранене.</p>
+                    </div>
+                </div>
+            </section>
 
-    try {
-        const geminiResult = await callGeminiAPI(prompt);
-        const cleanedJson = geminiResult.replace(/```json/g, '').replace(/```/g, '').trim();
-        return JSON.parse(cleanedJson);
-    } catch (geminiError) {
-        console.warn("Gemini API failed:", geminiError.message, ". Falling back to OpenAI.");
-        const openaiResult = await callOpenAIAPI(prompt);
-        // OpenAI might wrap the JSON in a parent object, so we handle that
-        const parsedOpenAI = JSON.parse(openaiResult.trim());
-        return parsedOpenAI.components ? parsedOpenAI : JSON.parse(Object.values(parsedOpenAI)[0]);
-    }
-}
+            <!-- Секция 2: Динамична адаптация -->
+            <section class="feature-section">
+                <div class="feature-header">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <h2>2. Адаптира се към вашия ден</h2>
+                </div>
+                <div class="comparison-grid">
+                    <div class="comparison-item standard">
+                        <h3>❌ Стандартните калкулатори</h3>
+                        <p>Дават ви едно и също число, без значение дали сте имали стресиращ ден, спали сте лошо или сте тренирали.</p>
+                    </div>
+                    <div class="comparison-item ours">
+                        <h3>✅ Нашият калкулатор</h3>
+                        <p>Отчита вашите <strong>нива на стрес, качество на съня и активност</strong>, за да ви даде много по-реалистична картина за нуждите ви *днес*.</p>
+                    </div>
+                </div>
+            </section>
 
-async function callGeminiAPI(prompt) {
-    const apiKey = self[AI_CONFIG.gemini.apiKeySecret];
-    if (!apiKey) throw new Error("Gemini API key is not set.");
-    const response = await fetch(AI_CONFIG.gemini.url(apiKey), {
-        method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { response_mime_type: "application/json", temperature: 0.2 } }),
-    });
-    if (!response.ok) throw new Error(`Gemini API request failed with status ${response.status}`);
-    const data = await response.json();
-    if (!data.candidates) throw new Error("Invalid response structure from Gemini API");
-    return data.candidates[0].content.parts[0].text;
-}
+            <!-- Секция 3: Качество > Количество -->
+            <section class="feature-section">
+                <div class="feature-header">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" /></svg>
+                    </div>
+                    <h2>3. Качеството на калориите има значение</h2>
+                </div>
+                <div class="comparison-grid">
+                    <div class="comparison-item standard">
+                        <h3>❌ Стандартните калкулатори</h3>
+                        <p>Третират 100 калории от сьомга и 100 калории от вафла по един и същи начин. За тях те са просто число.</p>
+                    </div>
+                    <div class="comparison-item ours">
+                        <h3>✅ Нашият калкулатор</h3>
+                        <p>Използва AI, за да анализира състава. Знае, че сьомгата подхранва <strong>мозъка и клетките</strong>, докато вафлата е бърза енергия за <strong>движение</strong>.</p>
+                    </div>
+                </div>
+            </section>
 
-async function callOpenAIAPI(prompt) {
-    const apiKey = self[AI_CONFIG.openai.apiKeySecret];
-    if (!apiKey) throw new Error("OpenAI API key is not set.");
-    const response = await fetch(AI_CONFIG.openai.url, {
-        method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: AI_CONFIG.openai.model, messages: [{ role: 'user', content: prompt }], response_format: { type: "json_object" }, temperature: 0.2 }),
-    });
-    if (!response.ok) throw new Error(`OpenAI API request failed with status ${response.status}`);
-    const data = await response.json();
-    if (!data.choices) throw new Error("Invalid response structure from OpenAI API");
-    return data.choices[0].message.content;
-}
+            <!-- Секция 4: Скритият разход -->
+            <section class="feature-section">
+                <div class="feature-header">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.362-3.797A8.33 8.33 0 0112 2.25c1.153 0 2.243.3 3.224.864z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" /></svg>
+                    </div>
+                    <h2>4. Отчита "цената" на храносмилането</h2>
+                </div>
+                <div class="comparison-grid">
+                    <div class="comparison-item standard">
+                        <h3>❌ Стандартните калкулатори</h3>
+                        <p>Игнорират факта, че тялото ви изгаря калории, за да смели храната. Приетите калории не са равни на усвоените.</p>
+                    </div>
+                    <div class="comparison-item ours">
+                        <h3>✅ Нашият калкулатор</h3>
+                        <p>Изчислява "термичния ефект" – знае, че за протеините се хаби най-много енергия. Показва ви <strong>реално усвоените калории</strong>.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <div class="steps-container">
+                <h2>Как работи в 3 лесни стъпки:</h2>
+                <ol>
+                    <li><strong>Казвате ни кои сте</strong>Попълвате своя профил и цел само веднъж.</li>
+                    <li><strong>Казвате ни какво ядете</strong>Описвате храната си с прости думи, без сложни мерки.</li>
+                    <li><strong>Виждате истинския ефект</strong>Нашият AI анализира и показва как храната работи за вас в реално време.</li>
+                </ol>
+            </div>
 
-// ===================================================================
-//  === ОСНОВНА ЛОГИКА ЗА ИЗЧИСЛЕНИЯ ===
-// ===================================================================
+            <div class="cta-section">
+                <h2>Готови ли сте да разберете храната си?</h2>
+                <p>Преминете към новото поколение интелигентен анализ.</p>
+                <a href="#" class="cta-button">Към приложението</a>
+            </div>
 
-function calculateTDEE(weight, height, age, gender, activityLevel, dailyState) {
-    let bmr;
-    if (gender === 'female') bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
-    else bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
-    
-    let tdee = bmr * activityLevel;
-    
-    const { stress, sleep, extraActivity } = dailyState;
-    if (stress === 3) tdee *= 1.1; else if (stress === 1) tdee *= 0.95;
-    if (sleep === 1) tdee *= 1.05; else if (sleep === 3) tdee *= 0.95;
-    if (extraActivity === 1) tdee *= 1.15; else if (extraActivity === 2) tdee *= 1.30;
-    
-    return tdee;
-}
+        </main>
+    </div>
 
-function calculateRecommendedWeight(heightCm) {
-    const heightM = heightCm / 100;
-    const lowerBmi = 19.0;
-    const upperBmi = 24.0;
-
-    const lowerWeight = lowerBmi * (heightM * heightM);
-    const upperWeight = upperBmi * (heightM * heightM);
-
-    return `${lowerWeight.toFixed(1)} - ${upperWeight.toFixed(1)} кг`;
-}
-
-/**
- * ПОДОБРЕНА ФУНКЦИЯ: Обработва храната с TEF и AI-базирано разпределение.
- */
-function processFoodIntake(currentProgress, analysisResult, dailyNeeds) {
-  const newProgress = { ...currentProgress };
-
-  // 1. Сумираме макронутриентите от всички компоненти на храната
-  let totalProtein = 0, totalCarbs = 0, totalFats = 0;
-  (analysisResult.components || []).forEach(item => {
-    totalProtein += item.protein_g || 0;
-    totalCarbs += item.carbs_g || 0;
-    totalFats += item.fats_g || 0;
-  });
-
-  // 2. Изчисляваме брутния енергиен прием
-  const grossEnergyPool = (totalProtein * 4) + (totalCarbs * 4) + (totalFats * 9);
-
-  // 3. НОВО: Изчисляваме и изваждаме Термичния ефект на храната (TEF)
-  const thermicEffectCost = (totalProtein * 4 * 0.25) + // 25% за протеин
-                              (totalCarbs * 4 * 0.08) +  // 8% за въглехидрати
-                              (totalFats * 9 * 0.02);    // 2% за мазнини
-
-  // Това е нетната, реално усвоена енергия, която ще разпределяме
-  const netEnergyPool = grossEnergyPool - thermicEffectCost;
-  
-  // 4. НОВО: Разпределяме нетната енергия спрямо процентите, подадени от AI
-  const impact = analysisResult.physiologicalImpact || {};
-  newProgress.g1 += netEnergyPool * ((impact.g1_maintenance_pct || 0) / 100);
-  newProgress.g2 += netEnergyPool * ((impact.g2_immunity_pct || 0) / 100);
-  newProgress.g3 += netEnergyPool * ((impact.g3_regulation_pct || 0) / 100);
-  newProgress.g4 += netEnergyPool * ((impact.g4_brain_pct || 0) / 100);
-  newProgress.g5 += netEnergyPool * ((impact.g5_movement_pct || 0) / 100);
-  
-  // 5. Проверяваме за излишък в групи 1-5 и го прехвърляме в група 6
-  let surplus = 0;
-  for (let i = 1; i <= 5; i++) {
-    const group = `g${i}`;
-    if (newProgress[group] > dailyNeeds[group]) {
-      surplus += newProgress[group] - dailyNeeds[group];
-      newProgress[group] = dailyNeeds[group]; // Капираме на 100%
-    }
-  }
-
-  // 6. Добавяме общия излишък към група 6 (Резерв)
-  newProgress.g6 += surplus;
-
-  return newProgress;
-}
+</body>
+</html>
