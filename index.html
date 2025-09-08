@@ -664,7 +664,7 @@
 
         // --- Състояние на приложението ---
         let userData = null;
-        let dailyNeeds = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, g6: 0 };
+        let dailyNeeds = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, g6: 100 }; // g6 нуждата е 100%
         let currentProgress = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, g6: 0 };
         let foodLog = [];
 
@@ -675,13 +675,7 @@
             { id: 3, title: 'Хормони и Регулация', color: 'var(--color-group3)', details: '<ul><li><b>Ендокринни жлези:</b> Йод, селен, тирозин за щитовидна; витамин C, B5 за надбъбречни; холестерол, цинк за полови жлези.</li><li><b>Стероидни хормони:</b> Витамин D, холестерол, омега-3 и омега-6 мастни киселини за синтез.</li><li><b>Невроендокринна връзка:</b> Взаимодействие между хормони и нервна система (кортизол, мелатонин, серотонин).</li><li><b>Циркадни ритми:</b> Мелатонин, витамин D, светлина и магнезий за регулиране на съня и бодърстването.</li><li><b>Глюкозни и липидни регулатори:</b> Хром, магнезий, ниацин за стабилизиране на хомеостазата.</li></ul>' },
             { id: 4, title: 'Мозъчна Дейност', color: 'var(--color-group4)', details: '<ul><li><b>Невромедиатори:</b> Триптофан, B6 за серотонин; тирозин, желязо, мед за допамин; холин за ацетилхолин.</li><li><b>Когнитивни процеси:</b> DHA, B12, фолат, витамин D за памет, концентрация, ясно мислене.</li><li><b>Емоционална стабилност:</b> Магнезий, цинк, омега-3 за буфериране срещу стрес и тревожност.</li><li><b>Психологическа устойчивост:</b> Аминокиселини и витамини B за адаптивността на нервната система.</li><li><b>Невропластичност:</b> BDNF (стимулиран от омега-3 и антиоксиданти) за създаване на нови връзки.</li></ul>' },
             { id: 5, title: 'Двигателни Процеси', color: 'var(--color-group5)', details: '<ul><li><b>Мускулна функция:</b> Аминокиселини, магнезий, калций, калий за правилно съкращение и отпускане.</li><li><b>Тонус и издръжливост:</b> Креатин, карнитин, фосфати, витамини B1 и B2 като кофактори.</li><li><b>Сърдечна дейност:</b> Калий, магнезий, таурин, омега-3 за ритъм и сила на съкращенията.</li><li><b>Ставна подвижност:</b> Колагенови аминокиселини, витамин C, манган.</li><li><b>Невро-мускулна координация:</b> Калций, витамин D, В-витамини, ацетилхолин.</li></ul>' },
-            // ПРОМЕНЕНА СТРУКТУРА НА КАРТА 6
-            { 
-                id: 6, 
-                title: 'Попълване на Резерви',
-                color: 'var(--color-group6)', 
-                details: `<p>Тази група показва прогреса към достигане на здравословни телесни резерви, които са ключови за хормоналния баланс и общото здраве. Тя се запълва бавно, докато тялото се възстановява, и отразява дългосрочния напредък, а не моментното хранене.</p>` 
-            }
+            { id: 6, title: 'Попълване на Резерви', color: 'var(--color-group6)', details: `<p>Тази група показва прогреса към достигане на здравословни телесни резерви, които са ключови за хормоналния баланс и общото здраве. Тя се запълва бавно, докато тялото се възстановява, и отразява дългосрочния напредък (промяна в теглото), а не моментното хранене.</p>` }
         ];
 
         function init() {
@@ -730,7 +724,6 @@
             document.getElementById('height').value = data.height;
             document.getElementById('weight').value = data.weight;
             document.getElementById('activity-level').value = data.activityLevel;
-            // Попълваме и новото поле, ако е запазено
             if (data.targetWeight) {
                 document.getElementById('target-weight').value = data.targetWeight;
             }
@@ -753,7 +746,8 @@
                     document.querySelector(`.activity-btn[data-value="${ds.extraActivity}"]`).classList.add('active');
                     updateSliderOutputs();
                 }
-                calculateDailyNeeds();
+                // Извикваме updateReserveProgress, за да сме сигурни, че g6 е актуално при зареждане
+                updateReserveProgress();
             } else {
                 mainApp.classList.add('disabled');
                 personalizationModule.classList.remove('collapsed');
@@ -767,7 +761,7 @@
         }
 
         function saveState() {
-            localStorage.setItem('userData', JSON.stringify(userData));
+            if (userData) localStorage.setItem('userData', JSON.stringify(userData));
             localStorage.setItem('currentProgress', JSON.stringify(currentProgress));
             localStorage.setItem('foodLog', JSON.stringify(foodLog));
             localStorage.setItem('dailyState', JSON.stringify({
@@ -778,8 +772,7 @@
         }
         
         function resetProgress() {
-            // Група 6 вече не се ресетва с дневния прогрес.
-            const g6progress = currentProgress.g6; // Запазваме прогреса на г6
+            const g6progress = currentProgress.g6;
             currentProgress = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, g6: g6progress };
             foodLog = [];
             saveState();
@@ -788,8 +781,6 @@
         }
 
         function calculateDailyNeeds() {
-            // Тази функция остава основно същата, защото дневните нужди не се променят,
-            // само начинът на изчисляване на г6 се мести изцяло в бекенда.
             if (!userData) return;
             let bmr;
             if (userData.gender === 'female') { bmr = (10 * userData.weight) + (6.25 * userData.height) - (5 * userData.age) - 161; }
@@ -837,16 +828,32 @@
             personalizationHeader.addEventListener('click', () => personalizationModule.classList.toggle('collapsed'));
             dailyStateHeader.addEventListener('click', () => dailyStateModule.classList.toggle('collapsed'));
 
+            // === ОБНОВЕНА ЛОГИКА ЗА БУТОНА ЗА ЗАПАЗВАНЕ ===
             saveNeedsBtn.addEventListener('click', () => {
                 const age = parseInt(document.getElementById('age').value);
                 const height = parseInt(document.getElementById('height').value);
                 const weight = parseInt(document.getElementById('weight').value);
-                const targetWeight = parseInt(document.getElementById('target-weight').value); // Взимаме и целевото тегло
+                const targetWeight = parseInt(document.getElementById('target-weight').value);
 
-                // Обновена валидация
                 if (isNaN(age) || isNaN(height) || isNaN(weight) || isNaN(targetWeight) || age <= 0 || height <= 0 || weight <= 0 || targetWeight <= 0) {
                     alert("Моля, попълнете коректно всички полета в профила с валидни положителни числа.");
                     return;
+                }
+                
+                // Проверяваме дали вече имаме потребителски данни
+                const existingUserData = localStorage.getItem('userData');
+                let startWeight;
+
+                if (existingUserData) {
+                    // Ако има, запазваме старото начално тегло, за да не се губи прогреса
+                    startWeight = JSON.parse(existingUserData).startWeight;
+                    // Ако по някаква причина старото начално тегло липсва (от стара версия), задаваме текущото
+                    if (!startWeight) {
+                        startWeight = weight;
+                    }
+                } else {
+                    // Ако няма (първоначална настройка), задаваме текущото тегло като начално
+                    startWeight = weight;
                 }
                 
                 userData = {
@@ -854,14 +861,16 @@
                     age: age,
                     height: height,
                     weight: weight,
-                    targetWeight: targetWeight, // Добавяме го към обекта
-                    activityLevel: parseFloat(document.getElementById('activity-level').value)
+                    targetWeight: targetWeight,
+                    activityLevel: parseFloat(document.getElementById('activity-level').value),
+                    startWeight: startWeight // <-- Добавяме началното тегло
                 };
                 
                 personalizationModule.classList.add('collapsed');
                 dailyStateModule.style.display = 'block';
                 mainApp.classList.remove('disabled');
                 
+                saveState();
                 resetProgress();
                 calculateDailyNeeds();
                 // След запазване на профила, веднага изпращаме заявка към бекенда, за да се обнови прогреса на група 6
@@ -944,6 +953,7 @@
         
         // Нова функция, която извиква бекенда само за да обнови прогреса на резервите
         async function updateReserveProgress() {
+            if (!userData) return;
             // Изпращаме заявка с празен текст за храна, за да може бекендът
             // да върне само обновения прогрес на база теглото
             try {
