@@ -2,417 +2,987 @@
 <html lang="bg">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Твоята Хранителна Подкрепа</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Моята Храна, Моите Функции</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        /* === Психологически съобразена цветова палитра === */
+        /* === Глобални стилове и цветове === */
         :root {
-            --color-bg: #FDFCF9; /* Много меко, топло бяло */
-            --color-card-bg: #FFFFFF;
-            --color-text-primary: #3D4A5C; /* Тъмно, но меко сиво-синьо */
-            --color-text-secondary: #7A8AA0;
-            --color-primary-action: #2E8B57; /* Морско зелено - цвят на растеж и спокойствие */
-            --color-primary-action-hover: #38a86a;
-            --color-shadow: rgba(61, 74, 92, 0.08);
+            --color-bg: #f5f0e1; /* Нежно кремаво-бежово */
+            --color-card-bg: #ffffff;
+            --color-text: #36454F; /* Тъмно сиво-кафяво */
+            --color-light-text: #8b968c; /* По-светло сиво за подтекст */
+            --color-primary: #9dc183; /* Успокояващо зелено */
+            --color-secondary: #f0e68c; /* Меко жълто */
+            --color-accent: #f4a261; /* Нежен корал */
+            --color-shadow: rgba(0, 0, 0, 0.08);
+            --color-border: #e0e0e0;
 
-            /* Цветове за групите - пастелни и природни */
-            --color-group1: #4CAF50; /* Поддръжка - Зелено (Растеж) */
-            --color-group2: #2196F3; /* Имунитет - Синьо (Чистота) */
-            --color-group3: #9C27B0; /* Регулация - Лилаво (Баланс) */
-            --color-group4: #FFC107; /* Мозък - Жълто (Яснота) */
-            --color-group5: #FF9800; /* Движение - Оранжево (Енергия) */
-            --color-group6: #B0BEC5; /* Резерви - Неутрално сиво */
+            /* Цветове за групите - по-меки, природни тонове */
+            --color-group1: #8bc34a; /* Свежо зелено */
+            --color-group2: #64b5f6; /* Небесно синьо */
+            --color-group3: #9575cd; /* Лавандулово лилаво */
+            --color-group4: #ffea00; /* Топло златисто жълто */
+            --color-group5: #ff7043; /* Енергично оранжево */
+            --color-group6: #bdbdbd; /* Неутрално сиво */
+            --color-danger: #ef5350; /* Меко червено за ресет */
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        html { font-size: 16px; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Comfortaa', cursive, sans-serif; /* По-заоблен шрифт */
             background-color: var(--color-bg);
-            color: var(--color-text-primary);
-            padding: 1.5rem 1rem;
-            -webkit-tap-highlight-color: transparent; /* Премахва синия фон при докосване на мобилни */
+            color: var(--color-text);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 1rem; /* По-малко padding за мобилни */
         }
 
         .container {
-            max-width: 500px;
-            margin: 0 auto;
+            width: 100%;
+            max-width: 600px; /* По-тясно за мобилни */
+            background-color: var(--color-card-bg);
+            border-radius: 20px; /* По-заоблени ъгли */
+            box-shadow: 0 10px 40px var(--color-shadow);
+            padding: 1.5rem;
+            text-align: center;
         }
 
-        header { text-align: center; margin-bottom: 2rem; }
-        header h1 { font-size: 1.75rem; margin-bottom: 0.5rem; }
-        header p { font-size: 1rem; color: var(--color-text-secondary); }
+        /* === Заглавна част === */
+        header h1 {
+            font-family: 'Montserrat', sans-serif; /* По-сериозен заглавен шрифт */
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-primary);
+        }
 
-        /* === Секция за въвеждане === */
-        .input-section {
+        header p {
+            font-size: 0.95rem;
+            color: var(--color-light-text);
+            margin-bottom: 1.5rem;
+        }
+
+        /* === Общи стилове за модули === */
+        .module {
+            background-color: var(--color-bg);
+            border-radius: 15px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+            border: 1px solid var(--color-border);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 0.5rem 0;
+        }
+
+        .module-header h2 {
+            font-size: 1.1rem;
+            color: var(--color-text);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+        }
+
+        .toggle-arrow {
+            font-size: 1.3rem;
+            transition: transform 0.3s ease;
+            color: var(--color-light-text);
+        }
+
+        .module.collapsed .toggle-arrow {
+            transform: rotate(-90deg);
+        }
+
+        .module-content {
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out, margin-top 0.5s ease-in-out;
+            max-height: 800px; /* Достатъчно голяма височина за всички полета */
+            margin-top: 1rem;
+        }
+
+        .module.collapsed .module-content {
+            max-height: 0;
+            margin-top: 0;
+        }
+
+        .disclaimer {
+            font-size: 0.8rem;
+            color: var(--color-light-text);
+            background-color: #e6e9e4; /* По-светъл фон за дисклеймъра */
+            padding: 0.7rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Една колона за мобилни */
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group label {
+            margin-bottom: 0.4rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.7rem;
+            border-radius: 8px;
+            border: 1px solid var(--color-border);
+            font-family: 'Comfortaa', cursive, sans-serif;
+            font-size: 0.9rem;
+            color: var(--color-text);
+            background-color: #fff;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 2px rgba(157, 193, 131, 0.3);
+            outline: none;
+        }
+
+        .slider-group {
+            margin-top: 1rem;
+        }
+
+        .slider-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .slider-group input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 8px;
+            background: var(--color-border);
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+
+        .slider-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            box-shadow: 0 0 0 3px rgba(157, 193, 131, 0.3);
+        }
+
+        .slider-group input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            box-shadow: 0 0 0 3px rgba(157, 193, 131, 0.3);
+        }
+
+        .slider-output {
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+
+        .activity-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap; /* За да се пренареждат на малки екрани */
+        }
+
+        .activity-btn {
+            flex: 1;
+            min-width: 80px; /* Минимална ширина за бутон */
+            padding: 0.7rem;
+            border: 1px solid var(--color-border);
             background-color: var(--color-card-bg);
-            border-radius: 16px;
-            padding: 1.5rem;
-            box-shadow: 0 8px 24px var(--color-shadow);
-            margin-bottom: 2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Comfortaa', cursive, sans-serif;
+            font-size: 0.85rem;
+            color: var(--color-text);
+            transition: all 0.2s ease;
+        }
+
+        .activity-btn.active {
+            background-color: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+            box-shadow: 0 2px 8px rgba(157, 193, 131, 0.3);
+        }
+
+        .module-button {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.8rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            margin-top: 1.5rem;
+            width: 100%;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .module-button:hover {
+            background-color: #8dae73;
+            box-shadow: 0 4px 12px rgba(157, 193, 131, 0.4);
+        }
+        
+        #main-app {
+            transition: opacity 0.5s ease;
+        }
+        #main-app.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        /* === Основно приложение - Input Area === */
+        .input-area {
+            margin-bottom: 1rem;
         }
 
         #food-input {
             width: 100%;
             min-height: 100px;
-            padding: 1rem;
-            border: 1px solid #E0E7F1;
-            border-radius: 12px;
-            resize: vertical;
-            font-family: 'Montserrat', sans-serif;
             font-size: 1rem;
-            background-color: var(--color-bg);
-        }
-        #food-input:focus { outline: 2px solid var(--color-primary-action); }
-
-        .ai-selector {
-            display: flex;
-            border: 1px solid #E0E7F1;
-            border-radius: 10px;
-            margin: 1rem 0;
-            overflow: hidden;
-        }
-        .ai-btn {
-            flex: 1;
-            padding: 0.75rem;
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--color-text-secondary);
-            transition: all 0.2s ease-in-out;
-        }
-        .ai-btn.active {
-            background-color: var(--color-primary-action);
-            color: white;
-            box-shadow: 0 2px 8px rgba(46, 139, 87, 0.3);
         }
 
         #analyze-btn {
-            width: 100%;
-            padding: 1rem;
-            font-size: 1.1rem;
-            font-weight: 600;
-            background-color: var(--color-primary-action);
+            background-color: var(--color-accent); /* По-топъл цвят за основен бутон */
             color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
+            padding: 0.9rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            margin-top: 1rem;
+            width: 100%;
+            font-family: 'Montserrat', sans-serif;
         }
-        #analyze-btn:hover { background-color: var(--color-primary-action-hover); }
-        #analyze-btn:disabled { background-color: #a6d3b8; cursor: not-allowed; }
 
-        /* === Индикатори за състояние (зареждане, грешка) === */
-        .status-indicator { display: none; margin-top: 1rem; text-align: center; }
+        #analyze-btn:hover {
+            background-color: #e08b4e;
+            box-shadow: 0 4px 12px rgba(244, 162, 97, 0.4);
+        }
+
+        #analyze-btn:disabled {
+            background-color: #fbd6b1;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        /* === Индикатор за зареждане (Spinner) === */
         .loader {
-            width: 24px; height: 24px;
-            border: 3px solid rgba(46, 139, 87, 0.2);
-            border-top-color: white;
+            display: none;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #e0e0e0;
+            border-top: 5px solid var(--color-accent);
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            margin: 2rem auto;
         }
-        .error-message {
-            background-color: #ffdde0; color: #b71c1c;
-            padding: 0.75rem; border-radius: 8px; font-size: 0.9rem;
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* === Дневен списък === */
-        .log-section { margin-bottom: 2rem; display: none; }
-        .log-section h2 { font-size: 1.2rem; margin-bottom: 0.75rem; }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* === Списък с храни === */
+        #food-log-container {
+            width: 100%;
+            text-align: left;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        #food-log-container h3 {
+            font-size: 1rem;
+            margin-bottom: 0.7rem;
+            color: var(--color-text);
+            font-family: 'Montserrat', sans-serif;
+        }
+
         #food-log-list {
             list-style: none;
             padding: 0;
-            background: var(--color-card-bg);
+            max-height: 180px; /* Оптимизирано за мобилни */
+            overflow-y: auto;
+            background-color: var(--color-bg);
             border-radius: 12px;
-            box-shadow: 0 4px 16px var(--color-shadow);
+            border: 1px solid var(--color-border);
+            box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.02);
         }
-        .log-item {
-            padding: 0.8rem 1rem;
-            border-bottom: 1px solid #f0f3f7;
-            color: var(--color-text-primary);
-            font-size: 0.95rem;
-        }
-        .log-item:last-child { border-bottom: none; }
 
-        /* === Резултати === */
+        .log-item {
+            padding: 0.7rem 1rem;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .log-item:last-child {
+            border-bottom: none;
+        }
+
+        .log-item-text {
+            color: var(--color-text);
+            flex-grow: 1;
+            margin-right: 0.5rem;
+        }
+
+        .log-item-time {
+            font-size: 0.75rem;
+            color: var(--color-light-text);
+            background-color: #e6e9e4;
+            padding: 0.3rem 0.6rem;
+            border-radius: 8px;
+        }
+
+        /* === Резултати - мрежа от карти === */
         #results-container {
             display: grid;
-            gap: 1.25rem;
             grid-template-columns: 1fr; /* Една колона за мобилни */
+            gap: 1rem;
+            text-align: left;
         }
+        
+        @media (min-width: 500px) { /* За по-големи таблети/хоризонтални телефони */
+            #results-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
         .card {
             background-color: var(--color-card-bg);
-            border-radius: 16px;
-            padding: 1.25rem;
-            box-shadow: 0 8px 24px var(--color-shadow);
+            border-radius: 15px;
+            padding: 1.2rem;
+            border: 1px solid var(--color-border);
+            box-shadow: 0 4px 15px var(--color-shadow);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
-        .card-header h3 { font-size: 1rem; font-weight: 600; }
-        .info-btn { background-color: #f0f3f7; border: none; border-radius: 50%; width: 24px; height: 24px; font-weight: bold; cursor: pointer; color: var(--color-text-secondary); font-style: italic; }
-        .card-visual { display: flex; justify-content: center; align-items: center; margin-bottom: 1rem; position: relative; }
-        .progress-circle { width: 100px; height: 100px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--color) calc(var(--value) * 1%), #f0f3f7 0); transition: background 1s ease-out; }
-        .progress-circle::before { content: ""; position: absolute; width: 80px; height: 80px; background: var(--color-card-bg); border-radius: 50%; }
-        .progress-value { position: relative; font-size: 1.5rem; font-weight: 600; color: var(--color-text-primary); }
-        .card-special-text { font-size: 0.9rem; color: var(--color-text-secondary); min-height: 100px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 1rem; background-color: #f8f9fa; border-radius: 8px; }
-        .card-details { display: none; margin-top: 1rem; font-size: 0.85rem; color: #495057; background-color: #f8f9fa; padding: 1rem; border-radius: 8px; }
-        .card-details.visible { display: block; }
-        
-        /* === Бутон за ресет === */
-        .reset-container { text-align: center; margin-top: 2.5rem; }
-        #reset-btn {
-            background: none; border: 1px solid #d1d9e4;
-            color: var(--color-text-secondary);
-            padding: 0.6rem 1.2rem; border-radius: 8px;
-            cursor: pointer; font-size: 0.9rem;
-            transition: all 0.2s ease;
-        }
-        #reset-btn:hover { background-color: #f0f3f7; border-color: #c1ccd9; }
 
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* === Съдържание на картите === */
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .card-header h3 {
+            font-size: 1rem;
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+        }
+
+        .info-btn {
+            background-color: #e6e9e4;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--color-light-text);
+            font-family: 'Comfortaa', cursive, sans-serif;
+            font-size: 1rem;
+            transition: background-color 0.2s ease;
+        }
+        .info-btn:hover { background-color: #d1d6cc; }
+
+        /* === Кръгова диаграма (визуализация) === */
+        .card-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .progress-circle {
+            width: 100px; /* По-малки за мобилни */
+            height: 100px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: conic-gradient(var(--color) calc(var(--value) * 1%), #e0e0e0 0);
+            transition: background 1s ease-out;
+        }
+
+        .progress-circle::before {
+            content: "";
+            position: absolute;
+            width: 80px; /* Вътрешен кръг */
+            height: 80px;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        .progress-value {
+            position: relative;
+            font-size: 1.3rem; /* По-малък шрифт */
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .card-special-text {
+            font-size: 0.85rem;
+            color: var(--color-light-text);
+            min-height: 100px; /* Съотв. на размера на кръга */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0.8rem;
+            background-color: var(--color-bg);
+            border-radius: 10px;
+            line-height: 1.4;
+        }
+
+        /* === Скрити детайли === */
+        .card-details {
+            display: none;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: var(--color-light-text);
+            background-color: var(--color-bg);
+            padding: 1rem;
+            border-radius: 10px;
+            line-height: 1.5;
+        }
+
+        .card-details.visible {
+            display: block;
+        }
+
+        .card-details ul {
+            list-style-position: inside;
+            padding-left: 0;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-details li {
+            margin-bottom: 0.3rem;
+            color: var(--color-text);
+        }
+        .card-details li b {
+            color: var(--color-primary);
+        }
+
+        .reset-btn {
+            font-size: 0.9rem;
+            background-color: var(--color-danger);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            padding: 0.8rem 1.5rem;
+            margin-top: 2rem;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .reset-btn:hover {
+            background-color: #c0392b;
+            box-shadow: 0 4px 12px rgba(239, 83, 80, 0.4);
+        }
     </style>
 </head>
 <body>
-
     <div class="container">
         <header>
-            <h1>Как подкрепи тялото си днес?</h1>
-            <p>Въведи какво си хапнал(а) и виж какви ресурси осигуряваш за своите функции.</p>
+            <h1>Моята Храна, Моите Функции</h1>
+            <p>Опознай как храната, която избираш, подкрепя всяка жизненоважна функция на твоето тяло.</p>
         </header>
 
-        <main>
-            <section class="input-section">
-                <textarea id="food-input" placeholder="Например: овесени ядки с банан и няколко ореха..."></textarea>
-                
-                <div class="ai-selector">
-                    <button class="ai-btn" data-model="gpt">GPT-3.5</button>
-                    <button class="ai-btn active" data-model="gemini">Gemini</button>
-                </div>
-
-                <button id="analyze-btn">
-                    <span id="btn-text">Добави грижа</span>
-                    <div id="loader" class="loader status-indicator"></div>
-                </button>
-                <div id="error-container" class="status-indicator"></div>
-            </section>
-
-            <section class="log-section" id="log-section">
-                <h2>Ти добави:</h2>
-                <ul id="food-log-list"></ul>
-            </section>
-
-            <section id="results-container">
-                <!-- Картите се генерират от JavaScript при зареждане -->
-            </section>
-
-            <div class="reset-container">
-                <button id="reset-btn">Започни нов ден</button>
+        <!-- Модул за персонализация -->
+        <section class="module" id="personalization-module">
+            <div class="module-header" id="personalization-header">
+                <h2>Твоят Профил</h2>
+                <span class="toggle-arrow">▼</span>
             </div>
+            <div class="module-content">
+                <p class="disclaimer">Моля, попълни тези данни, за да изчислим твоите индивидуални нужди. Информацията се съхранява само на твоето устройство.</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="gender">Пол</label>
+                        <select id="gender">
+                            <option value="female">Жена</option>
+                            <option value="male">Мъж</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="age">Възраст</label>
+                        <input type="number" id="age" value="30" min="10" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label for="height">Ръст (см)</label>
+                        <input type="number" id="height" value="165" min="100" max="250">
+                    </div>
+                    <div class="form-group">
+                        <label for="weight">Тегло (кг)</label>
+                        <input type="number" id="weight" value="60" min="20" max="300">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label for="activity-level">Основна дневна активност</label>
+                    <select id="activity-level">
+                        <option value="1.2">Заседнал начин (офис работа)</option>
+                        <option value="1.375" selected>Лека активност (леки упражнения 1-3 дни/седм.)</option>
+                        <option value="1.55">Умерена активност (3-5 дни/седм.)</option>
+                        <option value="1.725">Висока активност (6-7 дни/седм.)</option>
+                        <option value="1.9">Много висока активност (елитни спортисти)</option>
+                    </select>
+                </div>
+                <button class="module-button" id="save-needs-btn">Запази профил и продължи</button>
+            </div>
+        </section>
+
+        <!-- Модул за дневно състояние -->
+        <section class="module" id="daily-state-module" style="display: none;">
+             <div class="module-header" id="daily-state-header">
+                <h2>Моето Дневно Състояние</h2>
+                 <span class="toggle-arrow">▼</span>
+            </div>
+            <div class="module-content">
+                <div class="slider-group">
+                    <label for="stress-slider">Ниво на стрес: <span id="stress-output" class="slider-output">Умерено</span></label>
+                    <input type="range" id="stress-slider" min="1" max="3" value="2">
+                </div>
+                <div class="slider-group">
+                    <label for="sleep-slider">Качество на съня: <span id="sleep-output" class="slider-output">Добро (6-8ч)</span></label>
+                    <input type="range" id="sleep-slider" min="1" max="3" value="2">
+                </div>
+                 <div class="form-group" style="margin-top: 1rem;">
+                    <label>Допълнителна физическа активност днес:</label>
+                    <div class="activity-buttons" id="activity-buttons">
+                        <button class="activity-btn active" data-value="0">Без</button>
+                        <button class="activity-btn" data-value="1">Лека тренировка</button>
+                        <button class="activity-btn" data-value="2">Интензивна тренировка</button>
+                    </div>
+                </div>
+                <button class="module-button" id="update-daily-state-btn">Обнови нуждите за деня</button>
+            </div>
+        </section>
+
+        <main id="main-app">
+            <div class="input-area">
+                <textarea id="food-input" placeholder="Какво хапна? Например: купичка кисело мляко с мед и малко орехи"></textarea>
+                <button id="analyze-btn">Добави към дневника</button>
+            </div>
+            
+            <div id="food-log-container" style="display: none;">
+                <h3>Моят Дневен Дневник:</h3>
+                <ul id="food-log-list">
+                    <!-- Записванията за храни ще се добавят тук -->
+                </ul>
+            </div>
+
+            <div class="loader" id="loader"></div>
+            <div id="results-container">
+                <!-- Картите ще се генерират динамично от JavaScript -->
+            </div>
+            <button class="reset-btn" id="reset-btn">Започни деня отначало</button>
         </main>
     </div>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- DOM Елементи ---
-        const foodInput = document.getElementById('food-input');
+        const mainApp = document.getElementById('main-app');
+        const personalizationModule = document.getElementById('personalization-module');
+        const personalizationHeader = document.getElementById('personalization-header');
+        const saveNeedsBtn = document.getElementById('save-needs-btn');
+        const dailyStateModule = document.getElementById('daily-state-module');
+        const dailyStateHeader = document.getElementById('daily-state-header');
+        const updateDailyStateBtn = document.getElementById('update-daily-state-btn');
         const analyzeBtn = document.getElementById('analyze-btn');
-        const btnText = document.getElementById('btn-text');
-        const loader = document.getElementById('loader');
-        const errorContainer = document.getElementById('error-container');
-        const resultsContainer = document.getElementById('results-container');
-        const aiSelector = document.querySelector('.ai-selector');
-        const logSection = document.getElementById('log-section');
-        const foodLogList = document.getElementById('food-log-list');
         const resetBtn = document.getElementById('reset-btn');
+        const foodInput = document.getElementById('food-input');
+        const loader = document.getElementById('loader');
+        const resultsContainer = document.getElementById('results-container');
+        const foodLogContainer = document.getElementById('food-log-container');
+        const foodLogList = document.getElementById('food-log-list');
 
-        // --- API Endpoint ---
-        const API_URL = 'https://macros.radilov-k.workers.dev/';
+        // --- URL на бекенда ---
+        const backendUrl = 'https://macros.radilov-k.workers.dev/'; // Вашият Cloudflare Worker URL
 
         // --- Състояние на приложението ---
-        let currentProgress = {};
+        let userData = null;
+        let dailyNeeds = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, g6: 0 }; // Динамичните нужди в "ФЕ"
+        let currentProgress = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, g6: 0 }; // Текущият прогрес в "ФЕ"
         let foodLog = [];
-        let selectedModel = 'gemini'; // Default model
 
-        // --- Константи ---
+        // --- Конфигурация на групите за визуализация ---
         const cardData = [
-            { id: 1, title: 'Поддръжка и Възстановяване', color: 'var(--color-group1)' },
-            { id: 2, title: 'Имунитет и Пречистване', color: 'var(--color-group2)' },
-            { id: 3, title: 'Хормони и Регулация', color: 'var(--color-group3)' },
-            { id: 4, title: 'Мозъчна Дейност', color: 'var(--color-group4)' },
-            { id: 5, title: 'Двигателни Процеси', color: 'var(--color-group5)' },
-            { id: 6, title: 'Запасяване и Резерви', color: 'var(--color-group6)', isSpecial: true }
+            { id: 1, title: 'Поддръжка и Възстановяване', color: 'var(--color-group1)', details: '<ul><li><b>Клетъчни обвивки:</b> Фосилипиди, омега-3, холестерол за стабилност и пропускливост.</li><li><b>Невронни обвивки (миелин):</b> Дълговерижни мастни киселини, B12, холин за подкрепа на нервната система.</li><li><b>Кожа, коса, нокти:</b> Кератинови структури, колаген, цинк, мед, силиций за здравина и растеж.</li><li><b>Ставни повърхности и съединителна тъкан:</b> Колаген, протеогликани, витамин C, манган за гъвкавост и устойчивост.</li><li><b>Зъби и кости:</b> Калций, фосфор, витамин D, K2, магнезий за минерализация и плътност.</li></ul>' },
+            { id: 2, title: 'Имунитет и Пречистване', color: 'var(--color-group2)', details: '<ul><li><b>Кръвни елементи:</b> Желязо, мед, фолат, B12 за синтез на хемоглобин и бели кръвни клетки.</li><li><b>Имунна защита:</b> Витамини A, C, D, E, цинк, селен за модулация на Т- и В-клетки.</li><li><b>Чернодробна функция:</b> Холин, фолат, B12, глутатион за метилиране и антиоксидантна система.</li><li><b>Бъбречна функция:</b> Натрий, калий, магнезий за електролитен и воден баланс.</li><li><b>Антиоксидантна защита:</b> Витамин C, E, каротеноиди, полифеноли за елиминиране на реактивни кислородни видове.</li></ul>' },
+            { id: 3, title: 'Хормони и Регулация', color: 'var(--color-group3)', details: '<ul><li><b>Ендокринни жлези:</b> Йод, селен, тирозин за щитовидна; витамин C, B5 за надбъбречни; холестерол, цинк за полови жлези.</li><li><b>Стероидни хормони:</b> Витамин D, холестерол, омега-3 и омега-6 мастни киселини за синтез.</li><li><b>Невроендокринна връзка:</b> Взаимодействие между хормони и нервна система (кортизол, мелатонин, серотонин).</li><li><b>Циркадни ритми:</b> Мелатонин, витамин D, светлина и магнезий за регулиране на съня и бодърстването.</li><li><b>Глюкозни и липидни регулатори:</b> Хром, магнезий, ниацин за стабилизиране на хомеостазата.</li></ul>' },
+            { id: 4, title: 'Мозъчна Дейност', color: 'var(--color-group4)', details: '<ul><li><b>Невромедиатори:</b> Триптофан, B6 за серотонин; тирозин, желязо, мед за допамин; холин за ацетилхолин.</li><li><b>Когнитивни процеси:</b> DHA, B12, фолат, витамин D за памет, концентрация, ясно мислене.</li><li><b>Емоционална стабилност:</b> Магнезий, цинк, омега-3 за буфериране срещу стрес и тревожност.</li><li><b>Психологическа устойчивост:</b> Аминокиселини и витамини B за адаптивността на нервната система.</li><li><b>Невропластичност:</b> BDNF (стимулиран от омега-3 и антиоксиданти) за създаване на нови връзки.</li></ul>' },
+            { id: 5, title: 'Двигателни Процеси', color: 'var(--color-group5)', details: '<ul><li><b>Мускулна функция:</b> Аминокиселини, магнезий, калций, калий за правилно съкращение и отпускане.</li><li><b>Тонус и издръжливост:</b> Креатин, карнитин, фосфати, витамини B1 и B2 като кофактори.</li><li><b>Сърдечна дейност:</b> Калий, магнезий, таурин, омега-3 за ритъм и сила на съкращенията.</li><li><b>Ставна подвижност:</b> Колагенови аминокиселини, витамин C, манган.</li><li><b>Невро-мускулна координация:</b> Калций, витамин D, В-витамини, ацетилхолин.</li></ul>' },
+            { id: 6, title: 'Запасяване и Резерви', color: 'var(--color-group6)', isSpecial: true, details: '<p>Тази група показва дали тялото има ресурси, които да запаси за бъдеща употреба. При нормално хранене, особено в период на възстановяване, тази група често остава празна. Това е добър знак, че всички приети вещества се използват активно за поддържане на другите пет жизненоважни функции, без излишно натрупване.</p><ul><li><b>Чернодробен резерв (гликоген):</b> Попълва се при повече въглехидрати, служи за мозък и кръвна глюкоза.</li><li><b>Мускулен резерв (гликоген):</b> Попълва се при повече въглехидрати и активност; достъпен при движение.</li><li><b>Мастна тъкан (ендокринна функция):</b> При наличие на излишък; служи като жлеза, която отделя регулаторни хормони.</li><li><b>Микронутриентни депа:</b> Витамини и минерали, складирани в черен дроб, кости, щитовидна.</li><li><b>Белтъчен пул:</b> Временни аминокиселинни резерви в мускули и черен дроб.</li></ul>' }
         ];
-        
-        // --- Инициализация ---
+
+        // --- Инициализация на приложението ---
         function init() {
-            renderCards();
-            loadStateFromStorage();
-            updateUI();
-            setupEventListeners();
+            renderCards(); // Генерираме UI картите
+            loadState();    // Зареждаме съхранено състояние
+            setupEventListeners(); // Настройваме всички слушатели на събития
         }
 
+        // --- UI Rendering ---
         function renderCards() {
-            resultsContainer.innerHTML = '';
+            resultsContainer.innerHTML = ''; // Изчистваме съществуващите карти
             cardData.forEach(data => {
                 const cardHTML = `
                     <div class="card" id="card-${data.id}">
                         <div class="card-header">
                             <h3>${data.id}. ${data.title}</h3>
+                            <button class="info-btn">i</button>
                         </div>
                         <div class="card-visual">
                             ${data.isSpecial ? 
-                                `<div class="card-special-text">Всички ресурси се използват за текущите нужди на тялото.</div>` :
+                                `<div class="card-special-text">Няма пренасочване към резерви.</div>` :
                                 `<div class="progress-circle" style="--color: ${data.color}; --value: 0;">
                                     <span class="progress-value">0%</span>
                                 </div>`
                             }
                         </div>
+                        <div class="card-details">${data.details}</div>
                     </div>
                 `;
                 resultsContainer.innerHTML += cardHTML;
             });
         }
 
-        // --- Управление на състоянието ---
-        function loadStateFromStorage() {
-            const savedProgress = localStorage.getItem('dailyProgress');
-            const savedLog = localStorage.getItem('dailyFoodLog');
-            const savedDate = localStorage.getItem('savedDate');
-            const today = new Date().toLocaleDateString();
-
-            if (savedDate === today) {
-                currentProgress = savedProgress ? JSON.parse(savedProgress) : {};
-                foodLog = savedLog ? JSON.parse(savedLog) : [];
-            } else {
-                // It's a new day, clear old data
-                resetState(false); // false means don't show confirmation
-            }
-        }
-
-        function saveStateToStorage() {
-            localStorage.setItem('dailyProgress', JSON.stringify(currentProgress));
-            localStorage.setItem('dailyFoodLog', JSON.stringify(foodLog));
-            localStorage.setItem('savedDate', new Date().toLocaleDateString());
+        function renderFoodLog() {
+            foodLogContainer.style.display = foodLog.length > 0 ? 'block' : 'none';
+            foodLogList.innerHTML = '';
+            foodLog.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'log-item';
+                const date = new Date(item.timestamp);
+                li.innerHTML = `<span class="log-item-text">${item.text}</span> <span class="log-item-time">${date.toLocaleTimeString('bg-BG', { hour: '2-digit', minute: '2-digit' })}</span>`;
+                foodLogList.appendChild(li);
+            });
+            foodLogList.scrollTop = foodLogList.scrollHeight; // Скролва до последния елемент
         }
         
-        function resetState(confirmUser = true) {
-            if (confirmUser && !confirm("Сигурни ли сте, че искате да изтриете целия дневен напредък?")) {
-                return;
-            }
-            currentProgress = {};
-            foodLog = [];
-            saveStateToStorage();
-            updateUI();
+        function populateProfileForm(data) {
+            document.getElementById('gender').value = data.gender;
+            document.getElementById('age').value = data.age;
+            document.getElementById('height').value = data.height;
+            document.getElementById('weight').value = data.weight;
+            document.getElementById('activity-level').value = data.activityLevel;
         }
 
-        // --- UI Функции ---
+        // --- Управление на състоянието (LocalStorage) ---
+        function loadState() {
+            const savedUserData = localStorage.getItem('userData');
+            if (savedUserData) {
+                userData = JSON.parse(savedUserData);
+                populateProfileForm(userData);
+                personalizationModule.classList.add('collapsed'); // Свиваме профила
+                dailyStateModule.style.display = 'block'; // Показваме дневно състояние
+                mainApp.classList.remove('disabled'); // Активираме основното приложение
+                // Зареждаме и състоянието на слайдерите за дневно състояние
+                const savedDailyState = localStorage.getItem('dailyState');
+                if (savedDailyState) {
+                    const ds = JSON.parse(savedDailyState);
+                    document.getElementById('stress-slider').value = ds.stress;
+                    document.getElementById('sleep-slider').value = ds.sleep;
+                    document.querySelectorAll('.activity-btn').forEach(btn => btn.classList.remove('active'));
+                    document.querySelector(`.activity-btn[data-value="${ds.extraActivity}"]`).classList.add('active');
+                    // Обновяваме текстовите изходи на слайдерите
+                    updateSliderOutputs();
+                }
+                calculateDailyNeeds(); // Изчисляваме нуждите на база заредените данни
+            } else {
+                mainApp.classList.add('disabled'); // Деактивираме, докато няма профил
+                personalizationModule.classList.remove('collapsed'); // Разгъваме профила
+            }
+
+            const savedProgress = localStorage.getItem('currentProgress');
+            currentProgress = savedProgress ? JSON.parse(savedProgress) : { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, g6: 0 };
+            
+            const savedFoodLog = localStorage.getItem('foodLog');
+            foodLog = savedFoodLog ? JSON.parse(savedFoodLog) : [];
+
+            renderFoodLog();
+            updateUI(); // Обновяваме UI с текущия прогрес
+        }
+
+        function saveState() {
+            localStorage.setItem('userData', JSON.stringify(userData));
+            localStorage.setItem('currentProgress', JSON.stringify(currentProgress));
+            localStorage.setItem('foodLog', JSON.stringify(foodLog));
+            // Съхраняваме и текущото състояние на слайдерите
+            localStorage.setItem('dailyState', JSON.stringify({
+                stress: document.getElementById('stress-slider').value,
+                sleep: document.getElementById('sleep-slider').value,
+                extraActivity: document.querySelector('.activity-btn.active').dataset.value
+            }));
+        }
+        
+        function resetProgress() {
+            currentProgress = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, g6: 0 };
+            foodLog = [];
+            saveState();
+            renderFoodLog();
+            calculateDailyNeeds(); // Преизчисляваме нуждите, за да са актуални
+        }
+
+        // --- Калкулации (Тази част ще се премести към бекенда, но тук е за симулация) ---
+        function calculateDailyNeeds() {
+            if (!userData) return;
+
+            // 1. BMR (Базален метаболизъм) - Harris-Benedict revised
+            let bmr;
+            if (userData.gender === 'female') {
+                bmr = (10 * userData.weight) + (6.25 * userData.height) - (5 * userData.age) - 161;
+            } else {
+                bmr = (10 * userData.weight) + (6.25 * userData.height) - (5 * userData.age) + 5;
+            }
+            
+            // 2. TDEE (Общи дневни функционални единици)
+            const tdee = bmr * userData.activityLevel;
+            
+            // 3. Базово разпределение (процентно)
+            let baseNeeds = {
+                g1: tdee * 0.25, g2: tdee * 0.15, g3: tdee * 0.15, g4: tdee * 0.20, g5: tdee * 0.25, g6: 0 // Г6 няма базова нужда
+            };
+
+            // 4. Динамични модификатори от дневното състояние
+            const stress = parseInt(document.getElementById('stress-slider').value); // 1:Нисък, 2:Умерен, 3:Висок
+            const sleep = parseInt(document.getElementById('sleep-slider').value);   // 1:Слаб, 2:Добър, 3:Отличен
+            const extraActivity = parseInt(document.querySelector('.activity-btn.active').dataset.value); // 0:Без, 1:Лека, 2:Интензивна
+
+            // Модификатори за стрес
+            if(stress === 3) { baseNeeds.g3 *= 1.20; baseNeeds.g4 *= 1.20; } // Висок стрес: +20% за регулация и мозък
+            else if(stress === 1) { baseNeeds.g3 *= 0.90; baseNeeds.g4 *= 0.90; } // Нисък стрес: -10% за регулация и мозък
+
+            // Модификатори за сън
+            if(sleep === 1) { baseNeeds.g1 *= 1.15; baseNeeds.g4 *= 1.15; } // Слаб сън: +15% за поддръжка и мозък
+            else if(sleep === 3) { baseNeeds.g1 *= 0.90; baseNeeds.g4 *= 0.90; } // Отличен сън: -10% за поддръжка и мозък
+
+            // Модификатори за допълнителна активност
+            if(extraActivity === 1) { baseNeeds.g5 *= 1.25; baseNeeds.g1 *= 1.10; } // Лека: +25% движение, +10% поддръжка
+            else if(extraActivity === 2) { baseNeeds.g5 *= 1.50; baseNeeds.g1 *= 1.20; } // Интензивна: +50% движение, +20% поддръжка
+
+            dailyNeeds = baseNeeds;
+            console.log("Изчислени дневни нужди (ФЕ):", dailyNeeds);
+            updateUI(); // Обновяваме UI веднага след преизчисляване на нуждите
+            saveState(); // Съхраняваме нуждите, въпреки че основно ги ползваме от бекенда
+        }
+        
+        // --- UI Update ---
         function updateUI() {
-            // Update progress cards
             for (let i = 1; i <= 6; i++) {
                 const card = document.getElementById(`card-${i}`);
                 if (!card) continue;
                 
-                const percentage = currentProgress[`group${i}_percentage`] || 0;
+                const progress = currentProgress[`g${i}`] || 0;
+                const need = dailyNeeds[`g${i}`] || 1; // Делим на 1, за да избегнем делене на 0
 
+                // За групи 1-5 (прогресивни)
                 if (i < 6) {
+                    const percentage = Math.min(100, Math.round((progress / need) * 100));
                     const circle = card.querySelector('.progress-circle');
                     const valueSpan = card.querySelector('.progress-value');
+                    
                     circle.style.setProperty('--value', percentage);
                     valueSpan.textContent = `${percentage}%`;
-                } else {
+                } 
+                // Специално за група 6 (Резерви)
+                else {
                     const specialText = card.querySelector('.card-special-text');
-                    specialText.textContent = percentage > 0 
-                        ? `Малка част от ресурсите се насочва към резерви.`
-                        : "Всички ресурси се използват за текущите нужди на тялото.";
+                    if (progress > 0) {
+                        specialText.textContent = `Малка част от ресурсите се насочва към резерви. (≈ ${Math.round(progress)} ФЕ)`;
+                        specialText.style.color = 'var(--color-primary)'; // Оцветете, ако има резерви
+                    } else {
+                        specialText.textContent = "Няма пренасочване към резерви.";
+                        specialText.style.color = 'var(--color-light-text)';
+                    }
                 }
-            }
-            // Update food log
-            if (foodLog.length > 0) {
-                logSection.style.display = 'block';
-                foodLogList.innerHTML = foodLog.map(item => `<li class="log-item">${item}</li>`).join('');
-            } else {
-                logSection.style.display = 'none';
             }
         }
 
-        function showLoading(isLoading) {
-            if (isLoading) {
-                btnText.style.display = 'none';
+        function updateSliderOutputs() {
+            const stressValues = {1: 'Нисък', 2: 'Умерен', 3: 'Висок'};
+            const sleepValues = {1: 'Слаб (<6ч)', 2: 'Добър (6-8ч)', 3: 'Отличен (>8ч)'};
+            document.getElementById('stress-output').textContent = stressValues[document.getElementById('stress-slider').value];
+            document.getElementById('sleep-output').textContent = sleepValues[document.getElementById('sleep-slider').value];
+        }
+
+        // --- Event Listeners Setup ---
+        function setupEventListeners() {
+            // Разгъване/свиване на модули
+            personalizationHeader.addEventListener('click', () => personalizationModule.classList.toggle('collapsed'));
+            dailyStateHeader.addEventListener('click', () => dailyStateModule.classList.toggle('collapsed'));
+
+            // Запазване на профил
+            saveNeedsBtn.addEventListener('click', () => {
+                userData = {
+                    gender: document.getElementById('gender').value,
+                    age: parseInt(document.getElementById('age').value),
+                    height: parseInt(document.getElementById('height').value),
+                    weight: parseInt(document.getElementById('weight').value),
+                    activityLevel: parseFloat(document.getElementById('activity-level').value)
+                };
+
+                if (Object.values(userData).some(v => typeof v !== 'number' || isNaN(v))) { // Проверка за валидни числа
+                    alert("Моля, попълнете коректно всички полета в профила (само числа).");
+                    return;
+                }
+                
+                personalizationModule.classList.add('collapsed');
+                dailyStateModule.style.display = 'block';
+                mainApp.classList.remove('disabled');
+                
+                resetProgress(); // Ресетваме прогреса при нов профил
+                calculateDailyNeeds(); // Изчисляваме нуждите с новите данни
+            });
+
+            // Обновяване на дневно състояние
+            updateDailyStateBtn.addEventListener('click', () => {
+                calculateDailyNeeds();
+                dailyStateModule.classList.add('collapsed');
+            });
+            
+            // Анализ на храна
+            analyzeBtn.addEventListener('click', async () => {
+                const text = foodInput.value.trim();
+                if (text === '') {
+                    alert('Моля, въведете описание на храната.');
+                    return;
+                }
+
+                if (!userData) {
+                    alert('Моля, попълнете първо своя профил.');
+                    personalizationModule.classList.remove('collapsed');
+                    return;
+                }
+
                 loader.style.display = 'block';
                 analyzeBtn.disabled = true;
-                errorContainer.style.display = 'none';
-            } else {
-                btnText.style.display = 'block';
-                loader.style.display = 'none';
-                analyzeBtn.disabled = false;
-            }
-        }
 
-        function showError(message) {
-            errorContainer.innerHTML = `<div class="error-message">${message}</div>`;
-            errorContainer.style.display = 'block';
-        }
+                try {
+                    // Изпращаме всички необходими данни към бекенда
+                    const response = await fetch(backendUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            foodText: text,
+                            userProfile: userData,
+                            dailyState: {
+                                stress: parseInt(document.getElementById('stress-slider').value),
+                                sleep: parseInt(document.getElementById('sleep-slider').value),
+                                extraActivity: parseInt(document.querySelector('.activity-btn.active').dataset.value)
+                            },
+                            currentProgress: currentProgress // Изпращаме текущия прогрес
+                        })
+                    });
 
-        // --- Основна логика и Event Listeners ---
-        async function handleAnalysis() {
-            const text = foodInput.value.trim();
-            if (text === '') return;
+                    if (!response.ok) {
+                        throw new Error(`HTTP грешка! Статус: ${response.status}`);
+                    }
 
-            showLoading(true);
+                    const data = await response.json();
+                    
+                    // Обновяваме прогреса с данните от бекенда
+                    currentProgress = data.newProgress; 
+                    // Бекендът ще върне и обновените дневни нужди, за да сме сигурни, че са синхронизирани
+                    dailyNeeds = data.dailyNeeds; 
 
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text, model: selectedModel })
-                });
+                    foodLog.push({ text: text, timestamp: new Date().toISOString() });
+                    saveState();
+                    renderFoodLog();
+                    updateUI();
+                    foodInput.value = '';
 
-                if (!response.ok) {
-                    const errData = await response.json();
-                    throw new Error(errData.error || 'Сървърът върна грешка.');
+                } catch (error) {
+                    console.error("Грешка при анализ на храна:", error);
+                    alert("Възникна грешка при анализа. Моля, опитайте отново по-късно или проверете въведения текст.");
+                } finally {
+                    loader.style.display = 'none';
+                    analyzeBtn.disabled = false;
                 }
+            });
+            
+            // Ресет на деня
+            resetBtn.addEventListener('click', () => {
+                if (confirm("Сигурни ли сте, че искате да изтриете целия дневен прогрес и да започнете отначало?")) {
+                    resetProgress();
+                }
+            });
 
-                const data = await response.json();
-                
-                // Add new percentages to current progress
-                Object.keys(data).forEach(key => {
-                    const currentVal = currentProgress[key] || 0;
-                    currentProgress[key] = Math.min(100, currentVal + data[key]);
-                });
-                
-                // Update log
-                foodLog.push(text);
-                
-                saveStateToStorage();
-                updateUI();
-                foodInput.value = '';
+            // Разгъване/свиване на детайли в картите
+            resultsContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('info-btn')) {
+                    const card = e.target.closest('.card');
+                    card.querySelector('.card-details').classList.toggle('visible');
+                }
+            });
 
-            } catch (error) {
-                console.error("Analysis Error:", error);
-                showError("Възникна трудност при анализа. Моля, опитайте с по-ясно описание на храната.");
-            } finally {
-                showLoading(false);
-            }
-        }
+            // Sliders value display
+            document.getElementById('stress-slider').addEventListener('input', updateSliderOutputs);
+            document.getElementById('sleep-slider').addEventListener('input', updateSliderOutputs);
 
-        function setupEventListeners() {
-            analyzeBtn.addEventListener('click', handleAnalysis);
-            resetBtn.addEventListener('click', () => resetState(true));
-
-            aiSelector.addEventListener('click', (e) => {
-                if (e.target.tagName === 'BUTTON') {
-                    document.querySelectorAll('.ai-btn').forEach(btn => btn.classList.remove('active'));
+            // Active button for activity
+            document.getElementById('activity-buttons').addEventListener('click', e => {
+                if(e.target.tagName === 'BUTTON') {
+                    document.querySelectorAll('.activity-btn').forEach(btn => btn.classList.remove('active'));
                     e.target.classList.add('active');
-                    selectedModel = e.target.dataset.model;
                 }
             });
         }
