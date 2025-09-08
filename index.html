@@ -73,6 +73,26 @@
             margin-bottom: 1.5rem;
         }
 
+        header .about-btn {
+            display: inline-block;
+            background-color: var(--color-accent);
+            color: white;
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            margin-top: 0.5rem;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 12px rgba(244, 162, 97, 0.3);
+        }
+
+        header .about-btn:hover {
+            background-color: #e08b4e;
+            box-shadow: 0 6px 16px rgba(244, 162, 97, 0.4);
+        }
+
         /* === Общи стилове за модули === */
         .module {
             background-color: var(--color-bg);
@@ -651,6 +671,7 @@
         <header>
             <h1>Моята Храна, Моите Функции</h1>
             <p>Опознай как храната, която избираш, подкрепя всяка жизненоважна функция на твоето тяло.</p>
+            <a href="https://radilovk.github.io/food/about.html" class="about-btn">За AI - Foodmap</a>
         </header>
 
         <!-- Модул за персонализация -->
