@@ -573,9 +573,11 @@
                         <label for="weight">Тегло (кг)</label>
                         <input type="number" id="weight" value="60" min="20" max="300">
                     </div>
-                    <!-- НОВО ПОЛЕ -->
+                    <!-- ОБНОВЕНО ПОЛЕ -->
                     <div class="form-group">
-                        <label for="target-weight">Целево тегло (кг)</label>
+                        <label for="target-weight">Целево тегло (кг) 
+                            <span id="recommended-weight-display" style="font-weight: 400; color: var(--color-light-text); font-size: 0.8rem;"></span>
+                        </label>
                         <input type="number" id="target-weight" value="55" min="30" max="300">
                     </div>
                 </div>
@@ -664,7 +666,7 @@
 
         // --- Състояние на приложението ---
         let userData = null;
-        let dailyNeeds = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, g6: 100 }; // g6 нуждата е 100%
+        let dailyNeeds = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, g6: 0 };
         let currentProgress = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, g6: 0 };
         let foodLog = [];
 
@@ -675,7 +677,7 @@
             { id: 3, title: 'Хормони и Регулация', color: 'var(--color-group3)', details: '<ul><li><b>Ендокринни жлези:</b> Йод, селен, тирозин за щитовидна; витамин C, B5 за надбъбречни; холестерол, цинк за полови жлези.</li><li><b>Стероидни хормони:</b> Витамин D, холестерол, омега-3 и омега-6 мастни киселини за синтез.</li><li><b>Невроендокринна връзка:</b> Взаимодействие между хормони и нервна система (кортизол, мелатонин, серотонин).</li><li><b>Циркадни ритми:</b> Мелатонин, витамин D, светлина и магнезий за регулиране на съня и бодърстването.</li><li><b>Глюкозни и липидни регулатори:</b> Хром, магнезий, ниацин за стабилизиране на хомеостазата.</li></ul>' },
             { id: 4, title: 'Мозъчна Дейност', color: 'var(--color-group4)', details: '<ul><li><b>Невромедиатори:</b> Триптофан, B6 за серотонин; тирозин, желязо, мед за допамин; холин за ацетилхолин.</li><li><b>Когнитивни процеси:</b> DHA, B12, фолат, витамин D за памет, концентрация, ясно мислене.</li><li><b>Емоционална стабилност:</b> Магнезий, цинк, омега-3 за буфериране срещу стрес и тревожност.</li><li><b>Психологическа устойчивост:</b> Аминокиселини и витамини B за адаптивността на нервната система.</li><li><b>Невропластичност:</b> BDNF (стимулиран от омега-3 и антиоксиданти) за създаване на нови връзки.</li></ul>' },
             { id: 5, title: 'Двигателни Процеси', color: 'var(--color-group5)', details: '<ul><li><b>Мускулна функция:</b> Аминокиселини, магнезий, калций, калий за правилно съкращение и отпускане.</li><li><b>Тонус и издръжливост:</b> Креатин, карнитин, фосфати, витамини B1 и B2 като кофактори.</li><li><b>Сърдечна дейност:</b> Калий, магнезий, таурин, омега-3 за ритъм и сила на съкращенията.</li><li><b>Ставна подвижност:</b> Колагенови аминокиселини, витамин C, манган.</li><li><b>Невро-мускулна координация:</b> Калций, витамин D, В-витамини, ацетилхолин.</li></ul>' },
-            { id: 6, title: 'Попълване на Резерви', color: 'var(--color-group6)', details: `<p>Тази група показва прогреса към достигане на здравословни телесни резерви, които са ключови за хормоналния баланс и общото здраве. Тя се запълва бавно, докато тялото се възстановява, и отразява дългосрочния напредък (промяна в теглото), а не моментното хранене.</p>` }
+            { id: 6, title: 'Дневен Калориен Резерв', color: 'var(--color-group6)', details: `<p>Тази група показва дневния калориен излишък спрямо нуждите на <b>целевото тегло</b>. Запълва се само след като нуждите на останалите 5 групи са покрити. 100% означава, че сте приели двойно повече калории от необходимите за поддържане на целевото ви тегло.</p>` }
         ];
 
         function init() {
@@ -746,8 +748,7 @@
                     document.querySelector(`.activity-btn[data-value="${ds.extraActivity}"]`).classList.add('active');
                     updateSliderOutputs();
                 }
-                // Извикваме updateReserveProgress, за да сме сигурни, че g6 е актуално при зареждане
-                updateReserveProgress();
+                updateNeedsFromServer();
             } else {
                 mainApp.classList.add('disabled');
                 personalizationModule.classList.remove('collapsed');
@@ -772,33 +773,12 @@
         }
         
         function resetProgress() {
-            const g6progress = currentProgress.g6;
-            currentProgress = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, g6: g6progress };
+            // Вече нулираме всички 6 групи, тъй като всички са дневни показатели
+            currentProgress = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, g6: 0 };
             foodLog = [];
             saveState();
             renderFoodLog();
-            calculateDailyNeeds();
-        }
-
-        function calculateDailyNeeds() {
-            if (!userData) return;
-            let bmr;
-            if (userData.gender === 'female') { bmr = (10 * userData.weight) + (6.25 * userData.height) - (5 * userData.age) - 161; }
-            else { bmr = (10 * userData.weight) + (6.25 * userData.height) - (5 * userData.age) + 5; }
-            const tdee = bmr * userData.activityLevel;
-            let baseNeeds = { g1: tdee * 0.25, g2: tdee * 0.15, g3: tdee * 0.15, g4: tdee * 0.20, g5: tdee * 0.25, g6: 100 };
-            const stress = parseInt(document.getElementById('stress-slider').value);
-            const sleep = parseInt(document.getElementById('sleep-slider').value);
-            const extraActivity = parseInt(document.querySelector('.activity-btn.active').dataset.value);
-            if(stress === 3) { baseNeeds.g3 *= 1.20; baseNeeds.g4 *= 1.20; }
-            else if(stress === 1) { baseNeeds.g3 *= 0.90; baseNeeds.g4 *= 0.90; }
-            if(sleep === 1) { baseNeeds.g1 *= 1.15; baseNeeds.g4 *= 1.15; }
-            else if(sleep === 3) { baseNeeds.g1 *= 0.90; baseNeeds.g4 *= 0.90; }
-            if(extraActivity === 1) { baseNeeds.g5 *= 1.25; baseNeeds.g1 *= 1.10; }
-            else if(extraActivity === 2) { baseNeeds.g5 *= 1.50; baseNeeds.g1 *= 1.20; }
-            dailyNeeds = baseNeeds;
-            updateUI();
-            saveState();
+            updateNeedsFromServer(); // Обновяваме нуждите от сървъра
         }
         
         function updateUI() {
@@ -806,7 +786,7 @@
                 const card = document.getElementById(`card-${i}`);
                 if (!card) continue;
                 const progress = currentProgress[`g${i}`] || 0;
-                const need = dailyNeeds[`g${i}`] || 1;
+                const need = dailyNeeds[`g${i}`] || 1; // Защита от делене на нула
                 const percentage = Math.min(100, Math.round((progress / need) * 100));
 
                 const circle = card.querySelector('.progress-circle');
@@ -828,7 +808,6 @@
             personalizationHeader.addEventListener('click', () => personalizationModule.classList.toggle('collapsed'));
             dailyStateHeader.addEventListener('click', () => dailyStateModule.classList.toggle('collapsed'));
 
-            // === ОБНОВЕНА ЛОГИКА ЗА БУТОНА ЗА ЗАПАЗВАНЕ ===
             saveNeedsBtn.addEventListener('click', () => {
                 const age = parseInt(document.getElementById('age').value);
                 const height = parseInt(document.getElementById('height').value);
@@ -839,46 +818,25 @@
                     alert("Моля, попълнете коректно всички полета в профила с валидни положителни числа.");
                     return;
                 }
-                
-                // Проверяваме дали вече имаме потребителски данни
-                const existingUserData = localStorage.getItem('userData');
-                let startWeight;
-
-                if (existingUserData) {
-                    // Ако има, запазваме старото начално тегло, за да не се губи прогреса
-                    startWeight = JSON.parse(existingUserData).startWeight;
-                    // Ако по някаква причина старото начално тегло липсва (от стара версия), задаваме текущото
-                    if (!startWeight) {
-                        startWeight = weight;
-                    }
-                } else {
-                    // Ако няма (първоначална настройка), задаваме текущото тегло като начално
-                    startWeight = weight;
-                }
-                
+                                
                 userData = {
                     gender: document.getElementById('gender').value,
                     age: age,
                     height: height,
                     weight: weight,
                     targetWeight: targetWeight,
-                    activityLevel: parseFloat(document.getElementById('activity-level').value),
-                    startWeight: startWeight // <-- Добавяме началното тегло
+                    activityLevel: parseFloat(document.getElementById('activity-level').value)
                 };
                 
                 personalizationModule.classList.add('collapsed');
                 dailyStateModule.style.display = 'block';
                 mainApp.classList.remove('disabled');
                 
-                saveState();
                 resetProgress();
-                calculateDailyNeeds();
-                // След запазване на профила, веднага изпращаме заявка към бекенда, за да се обнови прогреса на група 6
-                updateReserveProgress();
             });
 
             updateDailyStateBtn.addEventListener('click', () => {
-                calculateDailyNeeds();
+                updateNeedsFromServer();
                 dailyStateModule.classList.add('collapsed');
             });
             
@@ -913,6 +871,11 @@
                     const data = await response.json();
                     currentProgress = data.newProgress; 
                     dailyNeeds = data.dailyNeeds; 
+                    
+                    if (data.recommendedWeight) {
+                        document.getElementById('recommended-weight-display').textContent = `(Препоръчително: ${data.recommendedWeight})`;
+                    }
+
                     foodLog.push({ text: text, timestamp: new Date().toISOString() });
                     saveState();
                     renderFoodLog();
@@ -928,7 +891,7 @@
             });
             
             resetBtn.addEventListener('click', () => {
-                if (confirm("Сигурни ли сте, че искате да изтриете целия дневен прогрес (без прогреса към целево тегло) и да започнете отначало?")) {
+                if (confirm("Сигурни ли сте, че искате да изтриете целия дневен прогрес и да започнете отначало?")) {
                     resetProgress();
                 }
             });
@@ -951,11 +914,10 @@
             });
         }
         
-        // Нова функция, която извиква бекенда само за да обнови прогреса на резервите
-        async function updateReserveProgress() {
+        async function updateNeedsFromServer() {
             if (!userData) return;
             // Изпращаме заявка с празен текст за храна, за да може бекендът
-            // да върне само обновения прогрес на база теглото
+            // да върне актуалните нужди и препоръчително тегло.
             try {
                 const response = await fetch(backendUrl, {
                     method: 'POST',
@@ -971,14 +933,17 @@
                         currentProgress: currentProgress
                     })
                 });
-                if (!response.ok) return; // Тиха грешка, за да не пречи
+                if (!response.ok) return; // Тиха грешка
                 const data = await response.json();
-                currentProgress = data.newProgress; 
+                
                 dailyNeeds = data.dailyNeeds; 
+                if (data.recommendedWeight) {
+                    document.getElementById('recommended-weight-display').textContent = `(Препоръчително: ${data.recommendedWeight})`;
+                }
                 saveState();
                 updateUI();
             } catch (e) {
-                console.warn("Could not update reserve progress silently.", e);
+                console.warn("Could not update needs from server.", e);
             }
         }
         
