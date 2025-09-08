@@ -659,8 +659,8 @@
 
         // --- Състояние на приложението ---
         let userData = null;
-        let dailyNeeds = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, g6: 0 }; // Динамичните нужди в "ФЕ"
-        let currentProgress = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, g6: 0 }; // Текущият прогрес в "ФЕ"
+        let dailyNeeds = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, g6: 0 };
+        let currentProgress = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, g6: 0 };
         let foodLog = [];
 
         // --- Конфигурация на групите за визуализация ---
@@ -673,16 +673,14 @@
             { id: 6, title: 'Запасяване и Резерви', color: 'var(--color-group6)', isSpecial: true, details: '<p>Тази група показва дали тялото има ресурси, които да запаси за бъдеща употреба. При нормално хранене, особено в период на възстановяване, тази група често остава празна. Това е добър знак, че всички приети вещества се използват активно за поддържане на другите пет жизненоважни функции, без излишно натрупване.</p><ul><li><b>Чернодробен резерв (гликоген):</b> Попълва се при повече въглехидрати, служи за мозък и кръвна глюкоза.</li><li><b>Мускулен резерв (гликоген):</b> Попълва се при повече въглехидрати и активност; достъпен при движение.</li><li><b>Мастна тъкан (ендокринна функция):</b> При наличие на излишък; служи като жлеза, която отделя регулаторни хормони.</li><li><b>Микронутриентни депа:</b> Витамини и минерали, складирани в черен дроб, кости, щитовидна.</li><li><b>Белтъчен пул:</b> Временни аминокиселинни резерви в мускули и черен дроб.</li></ul>' }
         ];
 
-        // --- Инициализация на приложението ---
         function init() {
-            renderCards(); // Генерираме UI картите
-            loadState();    // Зареждаме съхранено състояние
-            setupEventListeners(); // Настройваме всички слушатели на събития
+            renderCards();
+            loadState();
+            setupEventListeners();
         }
 
-        // --- UI Rendering ---
         function renderCards() {
-            resultsContainer.innerHTML = ''; // Изчистваме съществуващите карти
+            resultsContainer.innerHTML = '';
             cardData.forEach(data => {
                 const cardHTML = `
                     <div class="card" id="card-${data.id}">
@@ -715,7 +713,7 @@
                 li.innerHTML = `<span class="log-item-text">${item.text}</span> <span class="log-item-time">${date.toLocaleTimeString('bg-BG', { hour: '2-digit', minute: '2-digit' })}</span>`;
                 foodLogList.appendChild(li);
             });
-            foodLogList.scrollTop = foodLogList.scrollHeight; // Скролва до последния елемент
+            foodLogList.scrollTop = foodLogList.scrollHeight;
         }
         
         function populateProfileForm(data) {
@@ -726,16 +724,14 @@
             document.getElementById('activity-level').value = data.activityLevel;
         }
 
-        // --- Управление на състоянието (LocalStorage) ---
         function loadState() {
             const savedUserData = localStorage.getItem('userData');
             if (savedUserData) {
                 userData = JSON.parse(savedUserData);
                 populateProfileForm(userData);
-                personalizationModule.classList.add('collapsed'); // Свиваме профила
-                dailyStateModule.style.display = 'block'; // Показваме дневно състояние
-                mainApp.classList.remove('disabled'); // Активираме основното приложение
-                // Зареждаме и състоянието на слайдерите за дневно състояние
+                personalizationModule.classList.add('collapsed');
+                dailyStateModule.style.display = 'block';
+                mainApp.classList.remove('disabled');
                 const savedDailyState = localStorage.getItem('dailyState');
                 if (savedDailyState) {
                     const ds = JSON.parse(savedDailyState);
@@ -743,13 +739,12 @@
                     document.getElementById('sleep-slider').value = ds.sleep;
                     document.querySelectorAll('.activity-btn').forEach(btn => btn.classList.remove('active'));
                     document.querySelector(`.activity-btn[data-value="${ds.extraActivity}"]`).classList.add('active');
-                    // Обновяваме текстовите изходи на слайдерите
                     updateSliderOutputs();
                 }
-                calculateDailyNeeds(); // Изчисляваме нуждите на база заредените данни
+                calculateDailyNeeds();
             } else {
-                mainApp.classList.add('disabled'); // Деактивираме, докато няма профил
-                personalizationModule.classList.remove('collapsed'); // Разгъваме профила
+                mainApp.classList.add('disabled');
+                personalizationModule.classList.remove('collapsed');
             }
 
             const savedProgress = localStorage.getItem('currentProgress');
@@ -759,14 +754,13 @@
             foodLog = savedFoodLog ? JSON.parse(savedFoodLog) : [];
 
             renderFoodLog();
-            updateUI(); // Обновяваме UI с текущия прогрес
+            updateUI();
         }
 
         function saveState() {
             localStorage.setItem('userData', JSON.stringify(userData));
             localStorage.setItem('currentProgress', JSON.stringify(currentProgress));
             localStorage.setItem('foodLog', JSON.stringify(foodLog));
-            // Съхраняваме и текущото състояние на слайдерите
             localStorage.setItem('dailyState', JSON.stringify({
                 stress: document.getElementById('stress-slider').value,
                 sleep: document.getElementById('sleep-slider').value,
@@ -779,76 +773,47 @@
             foodLog = [];
             saveState();
             renderFoodLog();
-            calculateDailyNeeds(); // Преизчисляваме нуждите, за да са актуални
+            calculateDailyNeeds();
         }
 
-        // --- Калкулации (Тази част ще се премести към бекенда, но тук е за симулация) ---
         function calculateDailyNeeds() {
             if (!userData) return;
-
-            // 1. BMR (Базален метаболизъм) - Harris-Benedict revised
             let bmr;
-            if (userData.gender === 'female') {
-                bmr = (10 * userData.weight) + (6.25 * userData.height) - (5 * userData.age) - 161;
-            } else {
-                bmr = (10 * userData.weight) + (6.25 * userData.height) - (5 * userData.age) + 5;
-            }
-            
-            // 2. TDEE (Общи дневни функционални единици)
+            if (userData.gender === 'female') { bmr = (10 * userData.weight) + (6.25 * userData.height) - (5 * userData.age) - 161; }
+            else { bmr = (10 * userData.weight) + (6.25 * userData.height) - (5 * userData.age) + 5; }
             const tdee = bmr * userData.activityLevel;
-            
-            // 3. Базово разпределение (процентно)
-            let baseNeeds = {
-                g1: tdee * 0.25, g2: tdee * 0.15, g3: tdee * 0.15, g4: tdee * 0.20, g5: tdee * 0.25, g6: 0 // Г6 няма базова нужда
-            };
-
-            // 4. Динамични модификатори от дневното състояние
-            const stress = parseInt(document.getElementById('stress-slider').value); // 1:Нисък, 2:Умерен, 3:Висок
-            const sleep = parseInt(document.getElementById('sleep-slider').value);   // 1:Слаб, 2:Добър, 3:Отличен
-            const extraActivity = parseInt(document.querySelector('.activity-btn.active').dataset.value); // 0:Без, 1:Лека, 2:Интензивна
-
-            // Модификатори за стрес
-            if(stress === 3) { baseNeeds.g3 *= 1.20; baseNeeds.g4 *= 1.20; } // Висок стрес: +20% за регулация и мозък
-            else if(stress === 1) { baseNeeds.g3 *= 0.90; baseNeeds.g4 *= 0.90; } // Нисък стрес: -10% за регулация и мозък
-
-            // Модификатори за сън
-            if(sleep === 1) { baseNeeds.g1 *= 1.15; baseNeeds.g4 *= 1.15; } // Слаб сън: +15% за поддръжка и мозък
-            else if(sleep === 3) { baseNeeds.g1 *= 0.90; baseNeeds.g4 *= 0.90; } // Отличен сън: -10% за поддръжка и мозък
-
-            // Модификатори за допълнителна активност
-            if(extraActivity === 1) { baseNeeds.g5 *= 1.25; baseNeeds.g1 *= 1.10; } // Лека: +25% движение, +10% поддръжка
-            else if(extraActivity === 2) { baseNeeds.g5 *= 1.50; baseNeeds.g1 *= 1.20; } // Интензивна: +50% движение, +20% поддръжка
-
+            let baseNeeds = { g1: tdee * 0.25, g2: tdee * 0.15, g3: tdee * 0.15, g4: tdee * 0.20, g5: tdee * 0.25, g6: 0 };
+            const stress = parseInt(document.getElementById('stress-slider').value);
+            const sleep = parseInt(document.getElementById('sleep-slider').value);
+            const extraActivity = parseInt(document.querySelector('.activity-btn.active').dataset.value);
+            if(stress === 3) { baseNeeds.g3 *= 1.20; baseNeeds.g4 *= 1.20; }
+            else if(stress === 1) { baseNeeds.g3 *= 0.90; baseNeeds.g4 *= 0.90; }
+            if(sleep === 1) { baseNeeds.g1 *= 1.15; baseNeeds.g4 *= 1.15; }
+            else if(sleep === 3) { baseNeeds.g1 *= 0.90; baseNeeds.g4 *= 0.90; }
+            if(extraActivity === 1) { baseNeeds.g5 *= 1.25; baseNeeds.g1 *= 1.10; }
+            else if(extraActivity === 2) { baseNeeds.g5 *= 1.50; baseNeeds.g1 *= 1.20; }
             dailyNeeds = baseNeeds;
-            console.log("Изчислени дневни нужди (ФЕ):", dailyNeeds);
-            updateUI(); // Обновяваме UI веднага след преизчисляване на нуждите
-            saveState(); // Съхраняваме нуждите, въпреки че основно ги ползваме от бекенда
+            updateUI();
+            saveState();
         }
         
-        // --- UI Update ---
         function updateUI() {
             for (let i = 1; i <= 6; i++) {
                 const card = document.getElementById(`card-${i}`);
                 if (!card) continue;
-                
                 const progress = currentProgress[`g${i}`] || 0;
-                const need = dailyNeeds[`g${i}`] || 1; // Делим на 1, за да избегнем делене на 0
-
-                // За групи 1-5 (прогресивни)
+                const need = dailyNeeds[`g${i}`] || 1;
                 if (i < 6) {
                     const percentage = Math.min(100, Math.round((progress / need) * 100));
                     const circle = card.querySelector('.progress-circle');
                     const valueSpan = card.querySelector('.progress-value');
-                    
                     circle.style.setProperty('--value', percentage);
                     valueSpan.textContent = `${percentage}%`;
-                } 
-                // Специално за група 6 (Резерви)
-                else {
+                } else {
                     const specialText = card.querySelector('.card-special-text');
                     if (progress > 0) {
                         specialText.textContent = `Малка част от ресурсите се насочва към резерви. (≈ ${Math.round(progress)} ФЕ)`;
-                        specialText.style.color = 'var(--color-primary)'; // Оцветете, ако има резерви
+                        specialText.style.color = 'var(--color-primary)';
                     } else {
                         specialText.textContent = "Няма пренасочване към резерви.";
                         specialText.style.color = 'var(--color-light-text)';
@@ -864,60 +829,58 @@
             document.getElementById('sleep-output').textContent = sleepValues[document.getElementById('sleep-slider').value];
         }
 
-        // --- Event Listeners Setup ---
         function setupEventListeners() {
-            // Разгъване/свиване на модули
             personalizationHeader.addEventListener('click', () => personalizationModule.classList.toggle('collapsed'));
             dailyStateHeader.addEventListener('click', () => dailyStateModule.classList.toggle('collapsed'));
 
-            // Запазване на профил
             saveNeedsBtn.addEventListener('click', () => {
-                userData = {
-                    gender: document.getElementById('gender').value,
-                    age: parseInt(document.getElementById('age').value),
-                    height: parseInt(document.getElementById('height').value),
-                    weight: parseInt(document.getElementById('weight').value),
-                    activityLevel: parseFloat(document.getElementById('activity-level').value)
-                };
+                const age = parseInt(document.getElementById('age').value);
+                const height = parseInt(document.getElementById('height').value);
+                const weight = parseInt(document.getElementById('weight').value);
 
-                if (Object.values(userData).some(v => typeof v !== 'number' || isNaN(v))) { // Проверка за валидни числа
-                    alert("Моля, попълнете коректно всички полета в профила (само числа).");
+                // --- START OF FIX ---
+                // Коригираната валидация. Проверява само числовите полета.
+                if (isNaN(age) || isNaN(height) || isNaN(weight) || age <= 0 || height <= 0 || weight <= 0) {
+                    alert("Моля, попълнете коректно полетата за възраст, ръст и тегло с валидни положителни числа.");
                     return;
                 }
+                // --- END OF FIX ---
+
+                userData = {
+                    gender: document.getElementById('gender').value,
+                    age: age,
+                    height: height,
+                    weight: weight,
+                    activityLevel: parseFloat(document.getElementById('activity-level').value)
+                };
                 
                 personalizationModule.classList.add('collapsed');
                 dailyStateModule.style.display = 'block';
                 mainApp.classList.remove('disabled');
                 
-                resetProgress(); // Ресетваме прогреса при нов профил
-                calculateDailyNeeds(); // Изчисляваме нуждите с новите данни
+                resetProgress();
+                calculateDailyNeeds();
             });
 
-            // Обновяване на дневно състояние
             updateDailyStateBtn.addEventListener('click', () => {
                 calculateDailyNeeds();
                 dailyStateModule.classList.add('collapsed');
             });
             
-            // Анализ на храна
             analyzeBtn.addEventListener('click', async () => {
                 const text = foodInput.value.trim();
                 if (text === '') {
                     alert('Моля, въведете описание на храната.');
                     return;
                 }
-
                 if (!userData) {
                     alert('Моля, попълнете първо своя профил.');
                     personalizationModule.classList.remove('collapsed');
                     return;
                 }
-
                 loader.style.display = 'block';
                 analyzeBtn.disabled = true;
-
                 try {
-                    // Изпращаме всички необходими данни към бекенда
                     const response = await fetch(backendUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -929,44 +892,36 @@
                                 sleep: parseInt(document.getElementById('sleep-slider').value),
                                 extraActivity: parseInt(document.querySelector('.activity-btn.active').dataset.value)
                             },
-                            currentProgress: currentProgress // Изпращаме текущия прогрес
+                            currentProgress: currentProgress
                         })
                     });
-
                     if (!response.ok) {
-                        throw new Error(`HTTP грешка! Статус: ${response.status}`);
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `HTTP грешка! Статус: ${response.status}`);
                     }
-
                     const data = await response.json();
-                    
-                    // Обновяваме прогреса с данните от бекенда
                     currentProgress = data.newProgress; 
-                    // Бекендът ще върне и обновените дневни нужди, за да сме сигурни, че са синхронизирани
                     dailyNeeds = data.dailyNeeds; 
-
                     foodLog.push({ text: text, timestamp: new Date().toISOString() });
                     saveState();
                     renderFoodLog();
                     updateUI();
                     foodInput.value = '';
-
                 } catch (error) {
                     console.error("Грешка при анализ на храна:", error);
-                    alert("Възникна грешка при анализа. Моля, опитайте отново по-късно или проверете въведения текст.");
+                    alert(`Възникна грешка при анализа: ${error.message}`);
                 } finally {
                     loader.style.display = 'none';
                     analyzeBtn.disabled = false;
                 }
             });
             
-            // Ресет на деня
             resetBtn.addEventListener('click', () => {
                 if (confirm("Сигурни ли сте, че искате да изтриете целия дневен прогрес и да започнете отначало?")) {
                     resetProgress();
                 }
             });
 
-            // Разгъване/свиване на детайли в картите
             resultsContainer.addEventListener('click', (e) => {
                 if (e.target.classList.contains('info-btn')) {
                     const card = e.target.closest('.card');
@@ -974,11 +929,9 @@
                 }
             });
 
-            // Sliders value display
             document.getElementById('stress-slider').addEventListener('input', updateSliderOutputs);
             document.getElementById('sleep-slider').addEventListener('input', updateSliderOutputs);
 
-            // Active button for activity
             document.getElementById('activity-buttons').addEventListener('click', e => {
                 if(e.target.tagName === 'BUTTON') {
                     document.querySelectorAll('.activity-btn').forEach(btn => btn.classList.remove('active'));
@@ -987,7 +940,6 @@
             });
         }
         
-        // --- Старт на приложението ---
         init();
     });
     </script>
