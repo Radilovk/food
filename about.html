@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     <style>
         /* === Глобални стилове и цветове (взети от приложението) === */
         :root {
@@ -39,7 +40,6 @@
             background-color: var(--color-bg);
             color: var(--color-text);
             line-height: 1.6;
-            padding: 1rem;
         }
 
         .container {
@@ -48,7 +48,6 @@
             background-color: var(--color-card-bg);
             border-radius: 20px;
             box-shadow: 0 10px 40px var(--color-shadow);
-            padding: 2rem 1.5rem;
         }
 
         /* === Типография и заглавия === */
@@ -60,32 +59,17 @@
             text-align: center;
         }
 
-        h1 {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
-
-        h2 {
-            font-size: 1.3rem;
-            margin-bottom: 1rem;
-        }
 
         p {
-            margin-bottom: 1rem;
-            font-size: 0.95rem;
         }
 
         .subtitle {
             text-align: center;
             color: var(--color-light-text);
-            font-size: 1rem;
-            margin-bottom: 2.5rem;
         }
 
         /* === Секции и карти с предимства === */
         .feature-section {
-            margin-bottom: 2.5rem;
-            padding-bottom: 2rem;
             border-bottom: 1px solid var(--color-border);
         }
         .feature-section:last-of-type {
@@ -130,7 +114,6 @@
         }
 
         .comparison-item h3 {
-            font-size: 1rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
             display: flex;
@@ -139,7 +122,6 @@
         }
         
         .comparison-item p {
-            font-size: 0.9rem;
             color: var(--color-light-text);
             margin: 0;
         }
@@ -219,9 +201,6 @@
         
         /* === Media Query за по-големи екрани === */
         @media (min-width: 768px) {
-            h1 { font-size: 2.2rem; }
-            h2 { font-size: 1.5rem; }
-            .container { padding: 3rem; }
             .comparison-grid { grid-template-columns: 1fr 1fr; }
         }
 
