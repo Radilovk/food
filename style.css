@@ -39,3 +39,26 @@ body {
   margin-bottom: clamp(1.5rem, 5vw, 2.5rem);
   padding-bottom: clamp(1rem, 4vw, 2rem);
 }
+
+/* About button */
+.about-btn {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  background-color: var(--color-icon-bg);
+  color: var(--color-primary);
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.about-btn:hover {
+  background-color: var(--color-primary);
+  color: white;
+  box-shadow: 0 2px 8px rgba(157, 193, 131, 0.4);
+  transform: scale(1.05);
+}
